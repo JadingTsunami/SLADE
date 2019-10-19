@@ -43,14 +43,10 @@
 #include "MOPGProperty.h"
 #include "tinyexpr.h"
 
-int CheckExpression(wxString input, int fallback)
+int CheckExpression(const wxString input)
 {
-    if( input.StartsWith("=") ) {
-        double v = te_interp(input.Mid(1),NULL);
-        return std::round(v);
-    } else {
-        return fallback;
-    }
+    double v = te_interp(input,NULL);
+    return std::round(v);
 }
 
 /*******************************************************************
@@ -238,14 +234,62 @@ void MOPGIntProperty::applyValue()
 	if (IsValueUnspecified())
 		return;
 
-    int value = CheckExpression(m_value.GetString(),m_value.GetInteger());
+    wxString expr = m_value.GetString();
 
-    m_value = (long) value;
+    bool relative_add = expr.StartsWith("++");
+    bool relative_sub = expr.StartsWith("--");
+    bool relative_mul = expr.StartsWith("**");
+    bool relative_div = expr.StartsWith("//");
+
+    bool is_relative = relative_add || relative_sub || relative_mul || relative_div;
+    int relative_offset = 0;
+    int value = 0;
+
+    if( is_relative ) {
+        relative_offset = te_interp(m_value.GetString().Mid(2),NULL);
+    } else {
+        value = CheckExpression(m_value.GetString());
+        SetValue(value);
+    }
 
 	// Go through objects and set this value
 	vector<MapObject*>& objects = parent->getObjects();
-	for (unsigned a = 0; a < objects.size(); a++)
-		objects[a]->setIntProperty(GetName(), value);
+    if( !is_relative ) {
+        for (unsigned a = 0; a < objects.size(); a++)
+            objects[a]->setIntProperty(GetName(), value);
+    } else {
+        int running_val = 0;
+        bool set_unspecified = false;
+        bool first = true;
+        for (unsigned a = 0; a < objects.size(); a++) {
+            int new_value = objects[a]->intProperty(GetName());
+
+            if( relative_add ) {
+                new_value += relative_offset;
+            } else if( relative_sub ) {
+                new_value -= relative_offset;
+            } else if( relative_mul ) {
+                new_value *= relative_offset;
+            } else if( relative_div ) { 
+                new_value /= relative_offset;
+            }
+
+            objects[a]->setIntProperty(GetName(), new_value);
+
+            if( first ) {
+                running_val = new_value;
+                first = false;
+            } else if ( new_value != running_val ) {
+                set_unspecified = true;
+            }
+        }
+
+        if( set_unspecified ) {
+            SetValueToUnspecified();
+        } else {
+            SetValue(running_val);
+        }
+    }
 }
 
 
