@@ -43,11 +43,6 @@
 #include "MOPGProperty.h"
 #include "tinyexpr.h"
 
-int CheckExpression(const wxString input)
-{
-    double v = te_interp(input,NULL);
-    return std::round(v);
-}
 
 /*******************************************************************
  * MOPGPROPERTY CLASS FUNCTIONS
@@ -246,9 +241,9 @@ void MOPGIntProperty::applyValue()
     int value = 0;
 
     if( is_relative ) {
-        relative_offset = te_interp(m_value.GetString().Mid(2),NULL);
+        relative_offset = std::round(te_interp(m_value.GetString().Mid(2),NULL));
     } else {
-        value = CheckExpression(m_value.GetString());
+        value = std::round(te_interp(m_value.GetString(),NULL));
         SetValue(value);
     }
 
