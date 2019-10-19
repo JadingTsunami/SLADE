@@ -147,7 +147,6 @@ private:
 //
 // ----------------------------------------------------------------------------
 
-
 // ----------------------------------------------------------------------------
 // BrowserWindow::BrowserWindow
 //
@@ -247,6 +246,8 @@ BrowserWindow::BrowserWindow(wxWindow* parent) :
 	slider_zoom_->Bind(wxEVT_SLIDER, &BrowserWindow::onZoomChanged, this);
 	Bind(wxEVT_BROWSERCANVAS_SELECTION_CHANGED, &BrowserWindow::onCanvasSelectionChanged, this, canvas_->GetId());
 	canvas_->Bind(wxEVT_CHAR, &BrowserWindow::onCanvasKeyChar, this);
+	canvas_->Bind(wxEVT_CHAR_HOOK, &BrowserWindow::onCanvasKeyChar, this);
+    Bind(wxEVT_SHOW,&BrowserWindow::onShow, this);
 
 	Layout();
 	SetMinSize(WxUtils::scaledSize(540, 400));
@@ -258,6 +259,7 @@ BrowserWindow::BrowserWindow(wxWindow* parent) :
 
 	// Set focus to canvas
 	canvas_->SetFocus();
+
 }
 
 // ----------------------------------------------------------------------------
@@ -270,6 +272,11 @@ BrowserWindow::~BrowserWindow()
 	browser_maximised = IsMaximized();
 	if (!IsMaximized())
 		Misc::setWindowInfo("browser", GetClientSize().x, GetClientSize().y, GetPosition().x, GetPosition().y);
+}
+
+void BrowserWindow::onShow(wxShowEvent& e) {
+    canvas_->SetFocus();
+    //text_filter_->SetFocus();
 }
 
 // ----------------------------------------------------------------------------
@@ -370,9 +377,10 @@ bool BrowserWindow::selectItem(string name, BrowserTreeNode* node)
 	{
 		if (S_CMPNOCASE(name, items_global_[a]->name()))
 		{
-			openTree(node);
+			openTree(items_root_);
 			canvas_->selectItem(items_global_[a]);
 			canvas_->showSelectedItem();
+			openTree(items_root_);
 			return true;
 		}
 	}
@@ -384,11 +392,12 @@ bool BrowserWindow::selectItem(string name, BrowserTreeNode* node)
 		if (S_CMPNOCASE(node->getItem(a)->name(), name))
 		{
 			// Open this node in the browser and select the item
-			openTree(node);
+			openTree(items_root_);
 			canvas_->selectItem(node->getItem(a));
 			canvas_->showSelectedItem();
 			tree_items_->Select(node->treeId());
 			tree_items_->Expand(node->treeId());
+			openTree(items_root_);
 			return true;
 		}
 	}
@@ -761,7 +770,7 @@ int n_bw_chars = 31;
 void BrowserWindow::onCanvasKeyChar(wxKeyEvent& e)
 {
 	// Backspace
-	if (e.GetKeyCode() == WXK_BACK && text_filter_->GetValue().size() > 0)
+	if ((e.GetKeyCode() == WXK_BACK || e.GetKeyCode() == WXK_DELETE) && text_filter_->GetValue().size() > 0)
 	{
 		string filter = text_filter_->GetValue();
 		filter.RemoveLast(1);
@@ -769,6 +778,28 @@ void BrowserWindow::onCanvasKeyChar(wxKeyEvent& e)
 		e.Skip();
 		return;
 	}
+
+    if( e.GetKeyCode() == WXK_UP ||
+            e.GetKeyCode() == WXK_DOWN ||
+            e.GetKeyCode() == WXK_LEFT ||
+            e.GetKeyCode() == WXK_RIGHT ) {
+        canvas_->onKeyDown(e);
+        return;
+    }
+
+    if( e.GetKeyCode() == WXK_RETURN ) {
+        e.Skip();
+        EndModal(wxID_OK);
+        return;
+    }
+
+
+    if( e.GetKeyCode() == WXK_ESCAPE ) {
+        e.Skip();
+        EndModal(wxID_CANCEL);
+        return;
+    }
+
 
 	// Check the key pressed is actually a character (a-z, 0-9 etc)
 	bool isRealChar = false;

@@ -62,7 +62,7 @@ public:
 	void	applyValue();
 };
 
-class MOPGIntProperty : public MOPGProperty, public wxIntProperty
+class MOPGIntProperty : public MOPGProperty, public wxStringProperty
 {
 public:
 	MOPGIntProperty(const wxString& label = wxPG_LABEL, const wxString& name = wxPG_LABEL);

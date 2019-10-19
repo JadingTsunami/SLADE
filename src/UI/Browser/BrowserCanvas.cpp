@@ -492,13 +492,20 @@ void BrowserCanvas::filterItems(string filter)
 		filter += "*";
 
 		// Go through items
+        bool first = true;
 		for (unsigned a = 0; a < items_.size(); a++)
 		{
 			// Add to filter list if name matches
-			if (items_[a]->name().Lower().Matches(filter))
+			if (items_[a]->name().Lower().Matches(filter)) {
+                if( first ) {
+                    selectItem(items_[a]);
+                    first = false;
+                }
 				items_filter_.push_back(a);
+            }
 		}
 	}
+
 
 	// Update scrollbar and refresh
 	updateLayout(viewed_index);

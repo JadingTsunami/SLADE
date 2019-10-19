@@ -61,6 +61,8 @@ MapCanvas::MapCanvas(wxWindow* parent, int id, MapEditContext* context) :
 	// Bind Events
 	Bind(wxEVT_SIZE, &MapCanvas::onSize, this);
 	Bind(wxEVT_KEY_DOWN, &MapCanvas::onKeyDown, this);
+    // JDS
+	Bind(wxEVT_CHAR_HOOK, &MapCanvas::onKeyDown, this);
 	Bind(wxEVT_KEY_UP, &MapCanvas::onKeyUp, this);
 	Bind(wxEVT_LEFT_DOWN, &MapCanvas::onMouseDown, this);
 	Bind(wxEVT_LEFT_DCLICK, &MapCanvas::onMouseDown, this);

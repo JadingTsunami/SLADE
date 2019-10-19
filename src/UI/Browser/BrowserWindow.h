@@ -95,4 +95,5 @@ private:
 	void	onZoomChanged(wxCommandEvent& e);
 	void	onCanvasSelectionChanged(wxEvent& e);
 	void	onCanvasKeyChar(wxKeyEvent& e);
+    void    onShow(wxShowEvent& e);
 };

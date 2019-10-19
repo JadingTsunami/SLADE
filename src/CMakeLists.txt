@@ -76,6 +76,7 @@ file(GLOB_RECURSE SLADE_SOURCES
 	Graphics/*.cpp
 	MainEditor/*.cpp
 	MapEditor/*.cpp
+	MapEditor/*.c
 	OpenGL/*.cpp
 	UI/*.cpp
 	Utility/*.cpp

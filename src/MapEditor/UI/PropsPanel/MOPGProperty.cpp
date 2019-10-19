@@ -41,7 +41,17 @@
 #include "MapEditor/UI/Dialogs/ThingTypeBrowser.h"
 #include "MapObjectPropsPanel.h"
 #include "MOPGProperty.h"
+#include "tinyexpr.h"
 
+int CheckExpression(wxString input, int fallback)
+{
+    if( input.StartsWith("=") ) {
+        double v = te_interp(input.Mid(1),NULL);
+        return std::round(v);
+    } else {
+        return fallback;
+    }
+}
 
 /*******************************************************************
  * MOPGPROPERTY CLASS FUNCTIONS
@@ -156,7 +166,7 @@ void MOPGBoolProperty::applyValue()
  * MOPGIntProperty class constructor
  *******************************************************************/
 MOPGIntProperty::MOPGIntProperty(const wxString& label, const wxString& name)
-	: wxIntProperty(label, name, 0)
+	: wxStringProperty(label, name, "0")
 {
 	propname = name;
 }
@@ -228,10 +238,14 @@ void MOPGIntProperty::applyValue()
 	if (IsValueUnspecified())
 		return;
 
+    int value = CheckExpression(m_value.GetString(),m_value.GetInteger());
+
+    m_value = (long) value;
+
 	// Go through objects and set this value
 	vector<MapObject*>& objects = parent->getObjects();
 	for (unsigned a = 0; a < objects.size(); a++)
-		objects[a]->setIntProperty(GetName(), m_value.GetInteger());
+		objects[a]->setIntProperty(GetName(), value);
 }
 
 
@@ -597,7 +611,7 @@ bool MOPGActionSpecialProperty::OnEvent(wxPropertyGrid* propgrid, wxWindow* wind
 			GetGrid()->ChangePropertyValue(this, special);
 	}
 
-	return wxIntProperty::OnEvent(propgrid, window, e);
+	return wxStringProperty::OnEvent(propgrid, window, e);
 }
 
 
@@ -655,7 +669,7 @@ bool MOPGThingTypeProperty::OnEvent(wxPropertyGrid* propgrid, wxWindow* window, 
 		}
 	}
 
-	return wxIntProperty::OnEvent(propgrid, window, e);
+	return wxStringProperty::OnEvent(propgrid, window, e);
 }
 
 
@@ -1262,7 +1276,7 @@ bool MOPGTagProperty::OnEvent(wxPropertyGrid* propgrid, wxWindow* window, wxEven
 		return true;
 	}
 
-	return wxIntProperty::OnEvent(propgrid, window, e);
+	return wxStringProperty::OnEvent(propgrid, window, e);
 }
 
 
@@ -1340,5 +1354,5 @@ bool MOPGSectorSpecialProperty::OnEvent(wxPropertyGrid* propgrid, wxWindow* wind
 		return true;
 	}
 
-	return wxIntProperty::OnEvent(propgrid, window, e);
+	return wxStringProperty::OnEvent(propgrid, window, e);
 }
