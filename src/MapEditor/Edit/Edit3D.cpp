@@ -1755,13 +1755,6 @@ void Edit3D::doAlignY(MapSide* side, int start_ceil, int offset, string tex, vec
 	// Add to 'done' list
 	walls_done.push_back({ (int)side->getIndex(), ItemType::WallMiddle });
 
-	// Wrap offset
-	if (tex_height > 0)
-	{
-		while (offset >= tex_height)
-			offset -= tex_height;
-	}
-
     auto sector = side->getSector();
     if( !sector )
         return;
@@ -1769,8 +1762,14 @@ void Edit3D::doAlignY(MapSide* side, int start_ceil, int offset, string tex, vec
     int ceil_height = sector->getCeilingHeight();
 
 
+    // Calculate offset
     int yoff = (int)MathStuff::round(start_ceil - ceil_height);
-	// Set offset
+
+	if (tex_height > 0)
+	{
+        yoff %= tex_height;
+	}
+
 	side->setIntProperty("offsety", yoff);
 
 	// Get 'next' vertex
