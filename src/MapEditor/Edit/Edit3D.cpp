@@ -1741,7 +1741,7 @@ void Edit3D::doAlignX(MapSide* side, int offset, string tex, vector<MapEditor::I
 }
 
 /* Edit3D::doAlignY
- * Recursive function to align textures on the x axis
+ * Recursive function to align textures on the y axis
  *******************************************************************/
 void Edit3D::doAlignY(MapSide* side, int start_ceil, int offset, string tex, vector<MapEditor::Item>& walls_done, int tex_height)
 {
