@@ -418,6 +418,66 @@ void Edit3D::changeSectorHeight(int amount) const
 	}
 }
 
+/* Edit3D::autoAlignY
+ * Aligns Y offsets beginning from the wall selection [start]
+ *******************************************************************/
+void Edit3D::autoAlignY(MapEditor::Item start) const
+{
+
+	// Check start is a wall
+	if (start.type != ItemType::WallBottom && start.type != ItemType::WallMiddle && start.type != ItemType::WallTop)
+		return;
+
+	// Get starting side
+	auto side = context_.map().getSide(start.index);
+	if (!side) return;
+
+	// Get texture to match
+	string tex;
+	if (start.type == ItemType::WallBottom)
+		tex = side->stringProperty("texturebottom");
+	else if (start.type == ItemType::WallMiddle)
+		tex = side->stringProperty("texturemiddle");
+	else if (start.type == ItemType::WallTop)
+		tex = side->stringProperty("texturetop");
+
+	// Don't try to auto-align a missing texture (every line on the map will
+	// probably match)
+	if (tex == "-")
+		return;
+
+	// Get texture height
+	auto gl_tex = MapEditor::textureManager().getTexture(
+		tex,
+		Game::configuration().featureSupported(Game::Feature::MixTexFlats)
+	);
+	int tex_height = -1;
+	if (gl_tex)
+		tex_height = gl_tex->getHeight();
+
+	// Init aligned wall list
+	vector<MapEditor::Item> walls_done;
+
+	// Begin undo level
+	context_.beginUndoRecord("Auto Align Y", true, false, false);
+
+    // get control sector ceiling height
+    auto sector = side->getSector();
+    if( !sector )
+        return;
+
+    int starting_ceiling = sector->getCeilingHeight();
+
+	// Do alignment
+	doAlignY(side, starting_ceiling, side->intProperty("offsety"), tex, walls_done, tex_height);
+
+	// End undo level
+	context_.endUndoRecord();
+
+	// Editor message
+	context_.addEditorMessage("Auto-aligned on Y axis");
+}
+
 /* Edit3D::autoAlignX
  * Aligns X offsets beginning from the wall selection [start]
  *******************************************************************/
@@ -1676,6 +1736,74 @@ void Edit3D::doAlignX(MapSide* side, int offset, string tex, vector<MapEditor::I
 				s->stringProperty("texturemiddle") == tex ||
 				s->stringProperty("texturebottom") == tex)
 				doAlignX(s, offset + intlen, tex, walls_done, tex_width);
+		}
+	}
+}
+
+/* Edit3D::doAlignY
+ * Recursive function to align textures on the x axis
+ *******************************************************************/
+void Edit3D::doAlignY(MapSide* side, int start_ceil, int offset, string tex, vector<MapEditor::Item>& walls_done, int tex_height)
+{
+	// Check if this wall has already been processed
+	for (unsigned a = 0; a < walls_done.size(); a++)
+	{
+		if (walls_done[a].index == side->getIndex())
+			return;
+	}
+
+	// Add to 'done' list
+	walls_done.push_back({ (int)side->getIndex(), ItemType::WallMiddle });
+
+	// Wrap offset
+	if (tex_height > 0)
+	{
+		while (offset >= tex_height)
+			offset -= tex_height;
+	}
+
+    auto sector = side->getSector();
+    if( !sector )
+        return;
+
+    int ceil_height = sector->getCeilingHeight();
+
+
+    int yoff = (int)MathStuff::round(start_ceil - ceil_height);
+	// Set offset
+	side->setIntProperty("offsety", yoff);
+
+	// Get 'next' vertex
+	auto line = side->getParentLine();
+	auto vertex = line->v2();
+	if (side == line->s2())
+		vertex = line->v1();
+
+	// Go through connected lines
+	for (unsigned a = 0; a < vertex->nConnectedLines(); a++)
+	{
+		auto l = vertex->connectedLine(a);
+
+		// First side
+		auto s = l->s1();
+		if (s)
+		{
+			// Check for matching texture
+			if (s->stringProperty("texturetop") == tex ||
+				s->stringProperty("texturemiddle") == tex ||
+				s->stringProperty("texturebottom") == tex)
+				doAlignY(s, start_ceil, yoff, tex, walls_done, tex_height);
+		}
+
+		// Second side
+		s = l->s2();
+		if (s)
+		{
+			// Check for matching texture
+			if (s->stringProperty("texturetop") == tex ||
+				s->stringProperty("texturemiddle") == tex ||
+				s->stringProperty("texturebottom") == tex)
+				doAlignY(s, start_ceil, yoff, tex, walls_done, tex_height);
 		}
 	}
 }

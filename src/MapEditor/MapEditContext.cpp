@@ -1192,6 +1192,10 @@ bool MapEditContext::handleKeyBind(string key, fpoint2_t position)
 		else if (key == "me3d_wall_autoalign_x")
 			edit_3d_.autoAlignX(selection_.hilight());
 
+		// Auto-align
+		else if (key == "me3d_wall_autoalign_y")
+			edit_3d_.autoAlignY(selection_.hilight());
+
 		// Reset wall offsets
 		else if (key == "me3d_wall_reset")
 			edit_3d_.resetOffsets();

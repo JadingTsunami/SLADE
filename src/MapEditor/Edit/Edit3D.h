@@ -32,6 +32,7 @@ public:
 	void	changeOffset(int amount, bool x) const;
 	void	changeSectorHeight(int amount) const;
 	void	autoAlignX(MapEditor::Item start) const;
+	void	autoAlignY(MapEditor::Item start) const;
 	void	resetOffsets() const;
 	void	toggleUnpegged(bool lower) const;
 	void	copy(CopyType type);
@@ -60,4 +61,6 @@ private:
 
 	// Helper for autoAlignX3d
 	static void doAlignX(MapSide* side, int offset, string tex, vector<MapEditor::Item>& walls_done, int tex_width);
+    static void doAlignY(MapSide* side, int start_ceil, int offset, string tex, vector<MapEditor::Item>& walls_done, int tex_height);
+	
 };
