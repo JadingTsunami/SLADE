@@ -1093,6 +1093,7 @@ bool MapEditContext::handleKeyBind(string key, fpoint2_t position)
 		// Join
 		else if (key == "me2d_sector_join")			edit_2d_.joinSectors(true);
 		else if (key == "me2d_sector_join_keep")	edit_2d_.joinSectors(false);
+		else if (key == "me2d_sector_make_door")	edit_2d_.makeDoor();
 
 		else
 			return false;

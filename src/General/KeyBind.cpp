@@ -613,6 +613,7 @@ void KeyBind::initBinds()
 	addBind("me2d_sector_change_texture", keypress_t("T", KPM_CTRL), "Change texture(s)", group);
 	addBind("me2d_sector_join", keypress_t("J"), "Join sectors", group);
 	addBind("me2d_sector_join_keep", keypress_t("J", KPM_SHIFT), "Join sectors (keep lines)", group);
+	addBind("me2d_sector_make_door", keypress_t("D", KPM_CTRL|KPM_SHIFT), "Make sector into a door", group);
 
 	// Map Editor 2D Things mode (me2d_thing*)
 	group = "Map Editor 2D Things Mode";

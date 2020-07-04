@@ -27,6 +27,7 @@ public:
 	void	changeSectorLight(bool up, bool fine) const;
 	void 	changeSectorTexture() const;
 	void	joinSectors(bool remove_lines) const;
+    void    makeDoor() const;
 
 	// Things
 	void	changeThingType() const;

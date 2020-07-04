@@ -1195,3 +1195,80 @@ void Edit2D::deleteSector() const
 	// Remove detached vertices
 	context_.map().removeDetachedVertices();
 }
+
+
+/* Edit2D::makeDoor
+ * Make a sector into a door
+ *******************************************************************/
+void Edit2D::makeDoor() const
+{
+	// Do nothing if not in sectors mode
+	if (context_.editMode() != MapEditor::Mode::Sectors)
+		return;
+
+	// Get selected sectors (if any)
+	auto selection = context_.selection().selectedSectors();
+	if (selection.size() != 1)
+		return;
+
+	// Begin record undo level
+	context_.beginUndoRecordLocked("Make Door", true, false, false);
+
+    // 1. Move the ceiling down to the floor
+    int floorheight = selection[0]->intProperty("heightfloor");
+    int ceilheight = selection[0]->intProperty("heightceiling");
+    selection[0]->setIntProperty("heightceiling", floorheight);
+
+    // 2. Set ceiling texture to FLAT20
+    selection[0]->setStringProperty("textureceiling", "FLAT20");
+
+	// Init list of lines
+	vector<MapLine*> lines;
+    selection[0]->getLines(lines);
+
+    for( int i = 0; i < lines.size(); i++ ) {
+        if ( lines[i]->frontSector() && lines[i]->backSector() ) {
+            // 3. Flip all 2-sided linedefs so they face outward
+            lines[i]->flip();
+
+            // 3. Set all 2-sided linedef upper textures to BIGDOOR2, the STARTAN of doors
+            lines[i]->s1()->setStringProperty("texturetop", "BIGDOOR2");
+            // 4. Set all 2-sided linedef specials to 1 (DR DOOR)
+            lines[i]->setIntProperty("special", 1);
+
+        } else {
+
+            MapSide* side;
+            if (lines[i]->s1() && !lines[i]->s2())
+                side = lines[i]->s1();
+            else if (!lines[i]->s1() && lines[i]->s2())
+                side = lines[i]->s2();
+            else
+                continue;
+
+            // 5. Set all 1-sided linedef textures to DOORTRAK
+            side->setStringProperty("texturemiddle", "DOORTRAK");
+            // 6. Set all 1-sided linedef to lower unpegged
+			Game::configuration().setLineBasicFlag(
+				"dontpegbottom",
+				lines[i],
+				context_.map().currentFormat(),
+				true
+			);
+
+        }
+
+    }
+
+	// End record undo level
+	context_.endUndoRecord();
+
+	// Add editor message
+	context_.addEditorMessage("Made sector into a door.");
+
+	// Update display
+	context_.updateDisplay();
+}
+
+
+
