@@ -932,6 +932,10 @@ void Input::handleKeyBind2d(const string& name)
 			if (name == "me2d_line_change_texture")
 				context_.openLineTextureOverlay();
 
+            else if (name == "me2d_line_change_special") {
+                context_.handleAction("mapw_line_changespecial");
+            }
+
 			// Flip line
 			else if (name == "me2d_line_flip")
 				context_.edit2D().flipLines();
