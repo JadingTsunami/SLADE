@@ -97,6 +97,7 @@ CVAR(Bool, hilight_smooth, true, CVAR_SAVE)
 //
 // ----------------------------------------------------------------------------
 EXTERN_CVAR(Int, flat_drawtype)
+EXTERN_CVAR(Bool, move_things_with_sector)
 
 
 // ----------------------------------------------------------------------------
@@ -1060,6 +1061,12 @@ bool MapEditContext::handleKeyBind(string key, fpoint2_t position)
 		else if (key == "copy")
 			edit_2d_.copy();
 
+        else if (key == "me2d_move_things_with_sector") {
+            move_things_with_sector = !move_things_with_sector;
+            addEditorMessage("Toggled moving things with sectors");
+        }
+
+
 		else
 			handled = false;
 
@@ -1098,6 +1105,7 @@ bool MapEditContext::handleKeyBind(string key, fpoint2_t position)
 		else
 			return false;
 	}
+
 
 	// --- 3d mode keybinds ---
 	else if (key.StartsWith("me3d_") && edit_mode_ == Mode::Visual)

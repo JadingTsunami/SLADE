@@ -39,6 +39,7 @@
  *******************************************************************/
 CVAR(Bool, map_merge_undo_step, true, CVAR_SAVE)
 CVAR(Bool, selection_clear_move, true, CVAR_SAVE)
+CVAR(Bool, move_things_with_sector, true, CVAR_SAVE)
 
 
 /*******************************************************************
@@ -206,8 +207,23 @@ void MoveObjects::end(bool accept)
 		else if (context_.editMode() == Mode::Sectors)
 		{
 			vector<MapVertex*> sv;
-			for (auto& item : items_)
-				context_.map().getSector(item.index)->getVertices(sv);
+			for (auto& item : items_) {
+                MapSector* sec = context_.map().getSector(item.index);
+                sec->getVertices(sv);
+
+                /* if we're moving things too, we have to find them
+                 * and then move them
+                 */
+                if( move_things_with_sector ) {
+                    for (int i = context_.map().nThings() - 1; i >= 0 ; i--) {
+                        MapThing* thing = context_.map().getThing(i);
+                        if( sec->isWithin(thing->getPoint(0)) ) {
+                            context_.undoManager()->recordUndoStep(new MapEditor::PropertyChangeUS(thing));
+                            context_.map().moveThing(i, thing->xPos() + offset_.x, thing->yPos() + offset_.y);
+                        }
+                    }
+                }
+            }
 
 			for (auto vertex : sv)
 				move_verts[vertex->getIndex()] = 1;
