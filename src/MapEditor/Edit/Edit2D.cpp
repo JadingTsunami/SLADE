@@ -1203,13 +1203,17 @@ void Edit2D::deleteSector() const
 void Edit2D::makeDoor() const
 {
 	// Do nothing if not in sectors mode
-	if (context_.editMode() != MapEditor::Mode::Sectors)
+	if (context_.editMode() != MapEditor::Mode::Sectors) {
+        context_.addEditorMessage("Make door failed: Can only make doors in sectors mode.");
 		return;
+    }
 
 	// Get selected sectors (if any)
 	auto selection = context_.selection().selectedSectors();
-	if (selection.size() != 1)
+	if (selection.size() != 1) {
+        context_.addEditorMessage("Make door failed: Can only make one door at a time.");
 		return;
+    }
 
 	// Begin record undo level
 	context_.beginUndoRecordLocked("Make Door", true, false, false);
@@ -1226,10 +1230,19 @@ void Edit2D::makeDoor() const
 	vector<MapLine*> lines;
     selection[0]->getLines(lines);
 
+    MapSector* inside = NULL;
+    for( int i = 0; i < lines.size(); i++ ) {
+        if(lines[i]->frontSector() && !lines[i]->backSector()) {
+            inside = lines[i]->frontSector();
+            break;
+        }
+    }
+
     for( int i = 0; i < lines.size(); i++ ) {
         if ( lines[i]->frontSector() && lines[i]->backSector() ) {
-            // 3. Flip all 2-sided linedefs so they face outward
-            lines[i]->flip();
+            // 3. Flip all 2-sided linedefs pointing inward so they face outward
+            if( lines[i]->frontSector() == inside || !inside )
+                lines[i]->flip();
 
             // 3. Set all 2-sided linedef upper textures to BIGDOOR2, the STARTAN of doors
             lines[i]->s1()->setStringProperty("texturetop", "BIGDOOR2");
