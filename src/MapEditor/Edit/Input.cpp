@@ -540,12 +540,16 @@ void Input::onKeyBindPress(string name)
 	}
 
 	// Toggle 3d mode
-	if (name == "map_toggle_3d")
+	if (name == "map_toggle_3d" || name == "map_mouse_to_3d")
 	{
-		if (context_.editMode() == Mode::Visual)
+		if (context_.editMode() == Mode::Visual) {
 			context_.setPrevEditMode();
-		else
+        } else {
+            if( name == "map_mouse_to_3d" ) {
+                context_.handleAction("mapw_camera_set");
+            }
 			context_.setEditMode(Mode::Visual);
+        }
 	}
 
 	// Send to edit context first

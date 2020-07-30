@@ -542,6 +542,7 @@ void KeyBind::initBinds()
 	addBind("map_edit_accept", keypress_t("num_enter"));
 	addBind("map_edit_cancel", keypress_t("escape"), "Cancel edit", group);
 	addBind("map_toggle_3d", keypress_t("Q"), "Toggle 3d mode", group);
+	addBind("map_mouse_to_3d", keypress_t("Q", KPM_SHIFT), "Enter 3d mode at mouse location", group);
 	addBind("map_screenshot", keypress_t("P", KPM_CTRL|KPM_SHIFT), "Take Screenshot", group);
 
 	// Map Editor 2D (me2d*)
