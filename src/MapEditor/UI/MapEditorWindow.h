@@ -3,6 +3,7 @@
 #include "General/SAction.h"
 #include "UI/STopWindow.h"
 #include "Archive/Archive.h"
+#include "MapEditor/UI/ShapeDrawPanel.h"
 
 class MapObject;
 class MapObjectPropsPanel;
@@ -44,6 +45,7 @@ public:
 
 	MapObjectPropsPanel*	propsPanel() const { return panel_obj_props_; }
 	ObjectEditPanel*		objectEditPanel() const { return panel_obj_edit_; }
+    ShapeDrawPanel* panel_shapedraw;
 	
 	void	showObjectEditPanel(bool show, ObjectEditGroup* group);
 	void	showShapeDrawPanel(bool show = true);

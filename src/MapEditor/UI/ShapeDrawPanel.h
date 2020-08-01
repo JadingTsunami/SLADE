@@ -9,6 +9,7 @@ public:
 	~ShapeDrawPanel() {}
 
 	void	showShapeOptions(int shape);
+    void    setActiveShape(int shape);
 
 private:
 	wxChoice*	choice_shape_	= nullptr;

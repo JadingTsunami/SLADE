@@ -25,7 +25,7 @@ public:
 	bool	addPoint(fpoint2_t point, bool nearest = false);
 	void	removePoint();
 	void	updateShape(fpoint2_t point);
-	void	begin(bool shape = false);
+	void	begin(bool shape = false, int shape_mode = -1);
 	void	end(bool apply = true);
 
 private:

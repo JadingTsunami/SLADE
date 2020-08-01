@@ -575,6 +575,8 @@ void KeyBind::initBinds()
 	addBind("me2d_lock_hilight", keypress_t("H", KPM_CTRL), "Lock/unlock hilight", group);
 	addBind("me2d_begin_linedraw", keypress_t("space"), "Begin line drawing", group);
 	addBind("me2d_begin_shapedraw", keypress_t("space", KPM_SHIFT), "Begin shape drawing", group);
+	addBind("me2d_begin_shapedraw_ellipse", keypress_t("space", KPM_CTRL|KPM_SHIFT), "Begin ellipse shape drawing", group);
+	addBind("me2d_begin_shapedraw_rectangle", keypress_t("space", KPM_ALT|KPM_SHIFT), "Begin rectangle shape drawing", group);
 	addBind("me2d_create_object", keypress_t("insert"), "Create object", group);
 	addBind("me2d_delete_object", keypress_t("delete"), "Delete object", group);
 	addBind("me2d_copy_properties", keypress_t("C", KPM_CTRL|KPM_SHIFT), "Copy object properties", group);

@@ -30,6 +30,7 @@
 #include "Main.h"
 #include "LineDraw.h"
 #include "MapEditor/MapEditor.h"
+#include "MapEditor/UI/MapEditorWindow.h"
 #include "MapEditor/MapEditContext.h"
 #include "Utility/MathStuff.h"
 #include "General/KeyBind.h"
@@ -248,7 +249,7 @@ void LineDraw::updateShape(fpoint2_t point)
 /* LineDraw::begin
  * Begins a line or shape (if [shape] = true) drawing operation
  *******************************************************************/
-void LineDraw::begin(bool shape)
+void LineDraw::begin(bool shape, int shape_mode)
 {
 	// Setup state
 	state_current = shape ? State::ShapeOrigin : State::Line;
@@ -266,7 +267,11 @@ void LineDraw::begin(bool shape)
 			"Left Click = Draw point",
 			"Right Click = Undo previous point"
 		});
+        if( shape_mode >= 0 ) {
+            MapEditor::window()->panel_shapedraw->setActiveShape(shape_mode);
+        }
 		MapEditor::showShapeDrawPanel(true);
+        MapEditor::window()->panel_shapedraw->showShapeOptions(shapedraw_shape);
 	}
 	else
 	{

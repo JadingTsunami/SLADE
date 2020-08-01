@@ -111,6 +111,14 @@ ShapeDrawPanel::ShapeDrawPanel(wxWindow* parent) : wxPanel{ parent, -1 }
 	spin_sides_->Bind(wxEVT_TEXT_ENTER, [&](wxCommandEvent&) { shapedraw_sides = spin_sides_->GetValue(); });
 }
 
+void ShapeDrawPanel::setActiveShape(int shape)
+{
+    if( shape < 0 ) return;
+
+    shapedraw_shape = shape;
+    choice_shape_->SetSelection(shape);
+}
+
 // ----------------------------------------------------------------------------
 // ShapeDrawPanel::showShapeOptions
 //

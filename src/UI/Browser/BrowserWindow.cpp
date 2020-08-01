@@ -824,7 +824,12 @@ void BrowserWindow::onCanvasKeyChar(wxKeyEvent& e)
 	if (isRealChar)
 	{
 		string filter = text_filter_->GetValue();
-		filter += e.GetKeyCode();
+        if( e.GetKeyCode() == '8' && e.GetModifiers() == wxMOD_SHIFT )
+            filter += '*';
+        else if( e.GetKeyCode() == '-' && e.GetModifiers() == wxMOD_SHIFT )
+            filter += '_';
+        else
+            filter += e.GetKeyCode();
 		filter.MakeUpper();
 		text_filter_->SetValue(filter);
 	}

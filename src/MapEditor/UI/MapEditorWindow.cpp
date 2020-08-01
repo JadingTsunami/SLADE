@@ -404,7 +404,7 @@ void MapEditorWindow::setupLayout()
 
 
 	// --- Shape Draw Options Panel ---
-	ShapeDrawPanel* panel_shapedraw = new ShapeDrawPanel(this);
+	panel_shapedraw = new ShapeDrawPanel(this);
 
 	// Setup panel info & add panel
 	wxSize msize = panel_shapedraw->GetMinSize();

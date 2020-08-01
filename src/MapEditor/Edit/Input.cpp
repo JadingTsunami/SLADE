@@ -862,6 +862,14 @@ void Input::handleKeyBind2d(const string& name)
 		else if (name == "me2d_begin_shapedraw")
 			context_.lineDraw().begin(true);
 
+		// Begin shape drawing, rectangle
+		else if (name == "me2d_begin_shapedraw_rectangle")
+			context_.lineDraw().begin(true, 0);
+
+		// Begin shape drawing, ellipse
+		else if (name == "me2d_begin_shapedraw_ellipse")
+			context_.lineDraw().begin(true, 1);
+
 		// Create object
 		else if (name == "me2d_create_object")
 		{

@@ -41,3 +41,26 @@ cmake-build-debug/
 !/dist/res
 !/dist/CMakeLists.txt
 !/dist/makebuild.ps1
+
+# more files
+#	.ccls-cache/
+.ccls-cache/
+CMakeCache.txt
+CMakeFiles/
+Makefile
+UNSAVED (Doom WAD)
+UNSAVED (Doom WAD).bak
+cmake_install.cmake
+slade.pk3
+src/CMakeFiles/
+src/External/CMakeFiles/
+src/External/Makefile
+src/External/cmake_install.cmake
+src/Makefile
+src/cmake_install.cmake
+src/cmake_uninstall.cmake
+src/cotire/
+src/slade_CXX_cotire.cmake
+src/slade_C_cotire.cmake
+src/tags
+updates.txt
