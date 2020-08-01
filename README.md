@@ -9,3 +9,4 @@ A fork of slade where I keep my own personal QoL enhancement features, mostly fo
 * Keybind for changing line specials in 2D editor mode
 * Keybind for creating doors
 * Keybind for going to 3D mode at the current mouse location
+* Keybinds for shape creation (ellipse vs. rectangle)
