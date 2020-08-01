@@ -577,6 +577,10 @@ void KeyBind::initBinds()
 	addBind("me2d_begin_shapedraw", keypress_t("space", KPM_SHIFT), "Begin shape drawing", group);
 	addBind("me2d_begin_shapedraw_ellipse", keypress_t("space", KPM_CTRL|KPM_SHIFT), "Begin ellipse shape drawing", group);
 	addBind("me2d_begin_shapedraw_rectangle", keypress_t("space", KPM_ALT|KPM_SHIFT), "Begin rectangle shape drawing", group);
+	addBind("me2d_begin_shapedraw_inc_sides", keypress_t("up", KPM_CTRL), "Increase ellipse sides", group);
+	addBind("me2d_begin_shapedraw_dec_sides", keypress_t("down", KPM_CTRL), "Decrease ellipse sides", group);
+	addBind("me2d_begin_shapedraw_lock_ratio", keypress_t("1", KPM_CTRL|KPM_SHIFT), "Lock shape ratio", group);
+	addBind("me2d_begin_shapedraw_center", keypress_t("2", KPM_CTRL|KPM_SHIFT), "Center shape drawing", group);
 	addBind("me2d_create_object", keypress_t("insert"), "Create object", group);
 	addBind("me2d_delete_object", keypress_t("delete"), "Delete object", group);
 	addBind("me2d_copy_properties", keypress_t("C", KPM_CTRL|KPM_SHIFT), "Copy object properties", group);

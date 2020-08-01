@@ -83,7 +83,7 @@ ShapeDrawPanel::ShapeDrawPanel(wxWindow* parent) : wxPanel{ parent, -1 }
 	panel_sides_ = new wxPanel(this, -1);
 	wxBoxSizer* hbox2 = new wxBoxSizer(wxHORIZONTAL);
 	panel_sides_->SetSizer(hbox2);
-	spin_sides_ = new wxSpinCtrl(panel_sides_, -1, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS|wxALIGN_LEFT|wxTE_PROCESS_ENTER, 3, 1000);
+	spin_sides_ = new wxSpinCtrl(panel_sides_, -1, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS|wxALIGN_LEFT|wxTE_PROCESS_ENTER, MIN_ELLIPSE_SIDES, MAX_ELLIPSE_SIDES);
 	hbox2->Add(WxUtils::createLabelHBox(panel_sides_, "Sides:", spin_sides_), 1, wxEXPAND);
 
 	// Set control values
@@ -110,6 +110,28 @@ ShapeDrawPanel::ShapeDrawPanel(wxWindow* parent) : wxPanel{ parent, -1 }
 	spin_sides_->Bind(wxEVT_SPINCTRL, [&](wxCommandEvent&) { shapedraw_sides = spin_sides_->GetValue(); });
 	spin_sides_->Bind(wxEVT_TEXT_ENTER, [&](wxCommandEvent&) { shapedraw_sides = spin_sides_->GetValue(); });
 }
+
+void ShapeDrawPanel::setCentered(bool v)
+{
+    shapedraw_centered = v;
+    cb_centered_->SetValue(v);
+}
+
+void ShapeDrawPanel::setRatioLock(bool v)
+{
+    shapedraw_lockratio = v;
+    cb_lockratio_->SetValue(v);
+}
+
+void ShapeDrawPanel::offsetSides(int offset)
+{
+    shapedraw_sides = shapedraw_sides + offset;
+    /* don't allow illegal values */
+    shapedraw_sides = MAX(MIN_ELLIPSE_SIDES, shapedraw_sides);
+    shapedraw_sides = MIN(MAX_ELLIPSE_SIDES, shapedraw_sides);
+    spin_sides_->SetValue(shapedraw_sides);
+}
+
 
 void ShapeDrawPanel::setActiveShape(int shape)
 {

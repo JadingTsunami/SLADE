@@ -59,6 +59,8 @@ EXTERN_CVAR(Int, render_3d_things)
 EXTERN_CVAR(Int, render_3d_things_style)
 EXTERN_CVAR(Int, render_3d_hilight)
 EXTERN_CVAR(Bool, info_overlay_3d)
+EXTERN_CVAR(Bool, shapedraw_centered)
+EXTERN_CVAR(Bool, shapedraw_lockratio)
 
 
 /*******************************************************************
@@ -678,6 +680,28 @@ void Input::handleKeyBind2d(const string& name)
 			context_.lineDraw().end(false);
 			MapEditor::window()->showShapeDrawPanel(false);
 		}
+
+        else if (name == "me2d_begin_shapedraw_inc_sides") {
+            MapEditor::window()->panel_shapedraw->offsetSides(1);
+            context_.lineDraw().updateShape(mouse_pos_map_);
+        }
+
+        else if (name == "me2d_begin_shapedraw_dec_sides") {
+            MapEditor::window()->panel_shapedraw->offsetSides(-1);
+            context_.lineDraw().updateShape(mouse_pos_map_);
+        }
+
+        else if (name == "me2d_begin_shapedraw_lock_ratio") {
+            MapEditor::window()->panel_shapedraw->setRatioLock(!shapedraw_lockratio);
+            context_.lineDraw().updateShape(mouse_pos_map_);
+        }
+
+        else if (name == "me2d_begin_shapedraw_center") {
+            MapEditor::window()->panel_shapedraw->setCentered(!shapedraw_centered);
+            context_.lineDraw().updateShape(mouse_pos_map_);
+        }
+
+
 	}
 
 	// --- Paste ---
