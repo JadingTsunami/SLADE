@@ -305,7 +305,7 @@ MapEditorConfigDialog::MapEditorConfigDialog(wxWindow* parent, Archive* archive,
 
 	Layout();
 	SetMinClientSize(mainsizer->GetMinSize());
-	//mainsizer->Fit(this);
+	mainsizer->Fit(this);
 	CenterOnParent();
 
 	// Select first map
