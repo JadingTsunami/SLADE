@@ -11,3 +11,4 @@ A fork of slade where I keep my own personal QoL enhancement features, mostly fo
 * Keybind for going to 3D mode at the current mouse location
 * Keybinds for shape creation (ellipse vs. rectangle)
 * Keybinds for shape features (number of sides, centered, locked ratio)
+* Remember the last resource archives used when opening maps

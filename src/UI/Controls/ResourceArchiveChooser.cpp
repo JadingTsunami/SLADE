@@ -37,6 +37,8 @@
 #include "UI/WxUtils.h"
 
 
+CVAR(String, resources_last, "", CVAR_SAVE)
+
 // ----------------------------------------------------------------------------
 //
 // ResourceArchiveChooser Class Functions
@@ -59,6 +61,20 @@ ResourceArchiveChooser::ResourceArchiveChooser(wxWindow* parent, Archive* archiv
 	list_resources_ = new wxCheckListBox(this, -1);
 	sizer->Add(list_resources_, 1, wxEXPAND|wxBOTTOM, UI::pad());
 	list_resources_->SetInitialSize(WxUtils::scaledSize(350, 100));
+
+    // Parse last-used resources into the archive manager list
+    string res = resources_last.value;
+    if( res != "" ) {
+        wxStringTokenizer tokenizer(res,":");
+        wxString token;
+        while( tokenizer.HasMoreTokens() ) {
+            token = tokenizer.GetNextToken();
+            if( strlen(token) == 0 ) continue;
+            if( !App::archiveManager().getArchive(token) ) {
+                App::archiveManager().openArchive(token, true, true);
+            }
+        }
+    }
 
 	// Populate resource archive list
 	int index = 0;
@@ -91,6 +107,17 @@ ResourceArchiveChooser::ResourceArchiveChooser(wxWindow* parent, Archive* archiv
 	list_resources_->Bind(wxEVT_CHECKLISTBOX, &ResourceArchiveChooser::onResourceChecked, this);
 
 	Layout();
+}
+
+
+ResourceArchiveChooser::~ResourceArchiveChooser()
+{
+    /* update cvar */
+    string res_new = "";
+	vector<Archive*> selected = getSelectedResourceArchives();
+	for (unsigned a = 0; a < selected.size(); a++)
+		res_new += S_FMT("%s:", selected[a]->filename());
+    resources_last = res_new;
 }
 
 // ----------------------------------------------------------------------------

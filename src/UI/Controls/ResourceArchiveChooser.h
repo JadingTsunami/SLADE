@@ -8,7 +8,7 @@ class ResourceArchiveChooser : public wxPanel
 {
 public:
 	ResourceArchiveChooser(wxWindow* parent, Archive* archive);
-	~ResourceArchiveChooser() {}
+	~ResourceArchiveChooser();
 
 	vector<Archive*>	getSelectedResourceArchives();
 	string				getSelectedResourceList();
