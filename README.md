@@ -14,3 +14,4 @@ A fork of slade where I keep my own personal QoL enhancement features, mostly fo
 * Remember the last resource archives used when opening maps
 * Option (with keybind) to move things when moving sectors
 * Draw line lengths when selecting lines or moving/changing their size
+* Draw sector special and/or tag when selecting

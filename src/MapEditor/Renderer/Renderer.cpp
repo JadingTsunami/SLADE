@@ -627,6 +627,14 @@ void Renderer::drawSelectionNumbers() const
         if( context_.editMode() == Mode::Lines ) {
             MapLine* m = context_.map().getLine(selection[a]->getIndex());
             text += S_FMT(" : %.0lf",m->getLength());
+        } else if( context_.editMode() == Mode::Sectors ) {
+            int tag = selection[a]->intProperty("id");
+            int special = selection[a]->intProperty("special");
+            if(tag)
+                text += S_FMT(" : tag %d",tag);
+            if(special)
+                text += S_FMT(" : spc %d",special);
+
         }
 		auto ts = Drawing::textExtents(text, Drawing::FONT_BOLD);
 		tp.x -= ts.x * 0.5;
