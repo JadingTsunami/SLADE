@@ -624,6 +624,10 @@ void Renderer::drawSelectionNumbers() const
 		tp.y = view_.screenY(tp.y);
 
 		text = S_FMT("%d", a + 1);
+        if( context_.editMode() == Mode::Lines ) {
+            MapLine* m = context_.map().getLine(selection[a]->getIndex());
+            text += S_FMT(" : %.0lf",m->getLength());
+        }
 		auto ts = Drawing::textExtents(text, Drawing::FONT_BOLD);
 		tp.x -= ts.x * 0.5;
 		tp.y -= ts.y * 0.5;
@@ -635,7 +639,7 @@ void Renderer::drawSelectionNumbers() const
 		}
 
 		// Draw text
-		Drawing::drawText(S_FMT("%d", a + 1), tp.x, tp.y, col, Drawing::FONT_BOLD);
+		Drawing::drawText(text, tp.x, tp.y, col, Drawing::FONT_BOLD);
 	}
 	Drawing::setTextOutline(0);
 	Drawing::enableTextStateReset();

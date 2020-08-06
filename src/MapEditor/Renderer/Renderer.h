@@ -47,6 +47,7 @@ namespace MapEditor
 		void	animateSelectionChange(const ItemSelection &selection);
 		void	animateHilightChange(const MapEditor::Item& old_item, MapObject* old_object = nullptr);
 		void	addAnimation(std::unique_ptr<MCAnimation> animation);
+		void	drawLineLength(fpoint2_t p1, fpoint2_t p2, rgba_t col) const;
 
 	private:
 		MapEditContext&	context_;
@@ -77,7 +78,6 @@ namespace MapEditor
 		void	drawFeatureHelpText() const;
 		void	drawSelectionNumbers() const;
 		void	drawThingQuickAngleLines() const;
-		void	drawLineLength(fpoint2_t p1, fpoint2_t p2, rgba_t col) const;
 		void	drawLineDrawLines(bool snap_nearest_vertex) const;
 		void	drawPasteLines() const;
 		void	drawObjectEdit();

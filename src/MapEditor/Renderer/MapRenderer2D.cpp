@@ -2298,6 +2298,7 @@ void MapRenderer2D::renderMovingVertices(const vector<MapEditor::Item>& vertices
 	uint8_t* lines_drawn = new uint8_t[map->nLines()];
 	memset(lines_drawn, 0, map->nLines());
 
+    MapEditor::editContext().renderer().view().setOverlayCoords(true);
 	// Determine what lines need drawing (and which of their vertices are being moved)
 	for (unsigned a = 0; a < vertices.size(); a++)
 	{
@@ -2305,11 +2306,28 @@ void MapRenderer2D::renderMovingVertices(const vector<MapEditor::Item>& vertices
 		for (unsigned l = 0; l < v->nConnectedLines(); l++)
 		{
 			MapLine* line = v->connectedLine(l);
+            double lx1 = line->x1();
+            double ly1 = line->y1();
+            double lx2 = line->x2();
+            double ly2 = line->y2();
 
-			if (line->v1() == v) lines_drawn[line->getIndex()] |= 1;
-			if (line->v2() == v) lines_drawn[line->getIndex()] |= 2;
+			if (line->v1() == v) {
+                lines_drawn[line->getIndex()] |= 1;
+                lx1 += move_vec.x;
+                ly1 += move_vec.y;
+            }
+			if (line->v2() == v) {
+                lines_drawn[line->getIndex()] |= 2;
+                lx2 += move_vec.x;
+                ly2 += move_vec.y;
+            }
+
+            fpoint2_t p1(lx1, ly1);
+            fpoint2_t p2(lx2, ly2);
+            MapEditor::editContext().renderer().drawLineLength( p1, p2, ColourConfiguration::getColour("map_moving"));
 		}
 	}
+    MapEditor::editContext().renderer().view().setOverlayCoords(false);
 
 	// Draw any lines attached to the moving vertices
 	glLineWidth(line_width);
@@ -2354,6 +2372,7 @@ void MapRenderer2D::renderMovingVertices(const vector<MapEditor::Item>& vertices
 	}
 	glEnd();
 
+
 	// Clean up
 	delete[] lines_drawn;
 	if (point)
@@ -2372,7 +2391,6 @@ void MapRenderer2D::renderMovingLines(const vector<MapEditor::Item>& lines, fpoi
 	uint8_t* lines_drawn = new uint8_t[map->nLines()];
 	memset(lines_drawn, 0, map->nLines());
 
-	// Determine what lines need drawing (and which of their vertices are being moved)
 	for (unsigned a = 0; a < lines.size(); a++)
 	{
 		// Check first vertex
@@ -2381,8 +2399,12 @@ void MapRenderer2D::renderMovingLines(const vector<MapEditor::Item>& lines, fpoi
 		{
 			MapLine* line = v->connectedLine(l);
 
-			if (line->v1() == v) lines_drawn[line->getIndex()] |= 1;
-			if (line->v2() == v) lines_drawn[line->getIndex()] |= 2;
+			if (line->v1() == v) {
+                lines_drawn[line->getIndex()] |= 1;
+            }
+			if (line->v2() == v) {
+                lines_drawn[line->getIndex()] |= 2;
+            }
 		}
 
 		// Check second vertex
@@ -2391,10 +2413,44 @@ void MapRenderer2D::renderMovingLines(const vector<MapEditor::Item>& lines, fpoi
 		{
 			MapLine* line = v->connectedLine(l);
 
-			if (line->v1() == v) lines_drawn[line->getIndex()] |= 1;
-			if (line->v2() == v) lines_drawn[line->getIndex()] |= 2;
+			if (line->v1() == v) {
+                lines_drawn[line->getIndex()] |= 1;
+            }
+			if (line->v2() == v) {
+                lines_drawn[line->getIndex()] |= 2;
+            }
 		}
+
 	}
+
+	// Determine what lines need drawing (and which of their vertices are being moved)
+    MapEditor::editContext().renderer().view().setOverlayCoords(true);
+
+    for (unsigned a = 0; a < map->nLines(); a++) {
+        MapLine* line = map->getLine(a);
+		uint8_t drawn = lines_drawn[line->getIndex()];
+        if( drawn == 0 ) continue;
+        double lx1 = line->x1();
+        double ly1 = line->y1();
+        double lx2 = line->x2();
+        double ly2 = line->y2();
+
+        if (drawn & 1) {
+            lines_drawn[line->getIndex()] |= 1;
+            lx1 += move_vec.x;
+            ly1 += move_vec.y;
+        }
+        if (drawn & 2) {
+            lines_drawn[line->getIndex()] |= 2;
+            lx2 += move_vec.x;
+            ly2 += move_vec.y;
+        }
+
+        fpoint2_t p1(lx1, ly1);
+        fpoint2_t p2(lx2, ly2);
+        MapEditor::editContext().renderer().drawLineLength( p1, p2, ColourConfiguration::getColour("map_moving"));
+    }
+    MapEditor::editContext().renderer().view().setOverlayCoords(false);
 
 	// Draw any lines attached to the moving vertices
 	glLineWidth(line_width);
@@ -2439,6 +2495,16 @@ void MapRenderer2D::renderMovingLines(const vector<MapEditor::Item>& lines, fpoi
 		glVertex2d(line->x2() + move_vec.x, line->y2() + move_vec.y);
 	}
 	glEnd();
+
+    MapEditor::editContext().renderer().view().setOverlayCoords(true);
+	for (unsigned a = 0; a < lines.size(); a++)
+	{
+		MapLine* line = map->getLine(lines[a].index);
+        fpoint2_t p1(line->x1() + move_vec.x, line->y1() + move_vec.y);
+        fpoint2_t p2(line->x2() + move_vec.x, line->y2() + move_vec.y);
+        MapEditor::editContext().renderer().drawLineLength( p1, p2, ColourConfiguration::getColour("map_moving"));
+    }
+    MapEditor::editContext().renderer().view().setOverlayCoords(false);
 
 	// Clean up
 	delete[] lines_drawn;
