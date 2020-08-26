@@ -15,3 +15,4 @@ A fork of slade where I keep my own personal QoL enhancement features, mostly fo
 * Option (with keybind) to move things when moving sectors
 * Draw line lengths when selecting lines or moving/changing their size
 * Draw sector special and/or tag when selecting
+* Allow shift-snapping to existing draw points instead of just vertices
