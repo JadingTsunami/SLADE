@@ -73,8 +73,22 @@ bool LineDraw::addPoint(fpoint2_t point, bool nearest)
 	if (nearest)
 	{
 		int vertex = context.map().nearestVertex(point);
-		if (vertex >= 0)
+        double min_dist = 99999999;
+        double dist = min_dist;
+        int min_point = -1;
+        for( int i = 0; i < draw_points.size(); i++ ) {
+            dist = point.taxicab_distance_to(draw_points[i]);
+
+            if( dist < min_dist ) {
+                min_dist = dist;
+                min_point = i;
+            }
+        }
+
+		if (vertex >= 0 && point.taxicab_distance_to(context.map().getVertex(vertex)->point()) < min_dist )
 			point = context.map().getVertex(vertex)->point();
+        else if( min_point >= 0 )
+			point = draw_points[min_point];
 	}
 
 	// Otherwise, snap to grid if necessary

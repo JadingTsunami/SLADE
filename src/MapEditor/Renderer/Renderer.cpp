@@ -724,17 +724,36 @@ void Renderer::drawLineDrawLines(bool snap_nearest_vertex) const
 	auto col = ColourConfiguration::getColour("map_linedraw");
 	OpenGL::setColour(col);
 
+	auto& line_draw = context_.lineDraw();
+	int npoints = line_draw.nPoints();
 	// Determine end point
 	auto end = view_.mapPos(context_.input().mousePos(), true);
 	if (snap_nearest_vertex)
 	{
 		// If shift is held down, snap to the nearest vertex (if any)
 		int vertex = context_.map().nearestVertex(end);
-		if (vertex >= 0)
+        double min_dist = 99999999;
+        double dist = min_dist;
+        int min_point = -1;
+        for( int i = 0; i < npoints; i++ ) {
+            dist = end.taxicab_distance_to(line_draw.point(i));
+
+            if( dist < min_dist ) {
+                min_dist = dist;
+                min_point = i;
+            }
+        }
+
+		if (vertex >= 0 && end.taxicab_distance_to(context_.map().getVertex(vertex)->point()) < min_dist )
 		{
 			end.x = context_.map().getVertex(vertex)->xPos();
 			end.y = context_.map().getVertex(vertex)->yPos();
 		}
+        else if (min_point >= 0)
+        {
+            end.x = line_draw.point(min_point).x;
+            end.y = line_draw.point(min_point).y;
+        }
 		else if (context_.gridSnap())
 		{
 			// No nearest vertex, snap to grid if needed
@@ -750,8 +769,6 @@ void Renderer::drawLineDrawLines(bool snap_nearest_vertex) const
 	}
 
 	// Draw lines
-	auto& line_draw = context_.lineDraw();
-	int npoints = line_draw.nPoints();
 	glLineWidth(2.0f);
 	if (npoints > 1)
 	{
