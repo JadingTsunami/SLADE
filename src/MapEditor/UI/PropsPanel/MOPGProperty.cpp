@@ -235,13 +235,21 @@ void MOPGIntProperty::applyValue()
     bool relative_sub = expr.StartsWith("--");
     bool relative_mul = expr.StartsWith("**");
     bool relative_div = expr.StartsWith("//");
+    bool relative_inc = expr.StartsWith("inc");
+    bool relative_dec = expr.StartsWith("dec");
 
     bool is_relative = relative_add || relative_sub || relative_mul || relative_div;
+    bool is_increment = relative_inc || relative_dec;
     int relative_offset = 0;
+    int increment = 0;
+    
     int value = 0;
 
     if( is_relative ) {
         relative_offset = std::round(te_interp(m_value.GetString().Mid(2),NULL));
+    } else if( is_increment ) {
+        increment = std::round(te_interp(m_value.GetString().Mid(3),NULL));
+        increment *= (relative_inc?1:-1);
     } else {
         value = std::round(te_interp(m_value.GetString(),NULL));
         SetValue(value);
@@ -249,10 +257,7 @@ void MOPGIntProperty::applyValue()
 
 	// Go through objects and set this value
 	vector<MapObject*>& objects = parent->getObjects();
-    if( !is_relative ) {
-        for (unsigned a = 0; a < objects.size(); a++)
-            objects[a]->setIntProperty(GetName(), value);
-    } else {
+    if( is_relative || is_increment ) {
         int running_val = 0;
         bool set_unspecified = false;
         bool first = true;
@@ -267,6 +272,8 @@ void MOPGIntProperty::applyValue()
                 new_value *= relative_offset;
             } else if( relative_div ) { 
                 new_value /= relative_offset;
+            } else if( is_increment ) {
+                new_value += increment * (a+1);
             }
 
             objects[a]->setIntProperty(GetName(), new_value);
@@ -284,6 +291,10 @@ void MOPGIntProperty::applyValue()
         } else {
             SetValue(running_val);
         }
+    } else {
+        /* loop through and apply the value */
+        for (unsigned a = 0; a < objects.size(); a++)
+            objects[a]->setIntProperty(GetName(), value);
     }
 }
 
