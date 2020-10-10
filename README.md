@@ -16,3 +16,5 @@ A fork of slade where I keep my own personal QoL enhancement features, mostly fo
 * Draw line lengths when selecting lines or moving/changing their size
 * Draw sector special and/or tag when selecting
 * Allow shift-snapping to existing draw points instead of just vertices
+* Add MBF specials to Boom linedef definitions
+* Add running increment and decrement options to properties panel.
