@@ -28,6 +28,7 @@ public:
 	void	setLinked(bool light, bool offsets) { link_light_ = light; link_offset_ = offsets; }
 
 	void	selectAdjacent(MapEditor::Item item) const;
+	void	selectAdjacentRestricted(MapEditor::Item item) const;
 	void	changeSectorLight(int amount) const;
 	void	changeOffset(int amount, bool x) const;
 	void	changeSectorHeight(int amount) const;
@@ -53,10 +54,12 @@ private:
 	MapThing						copy_thing_;
 
 	vector<MapEditor::Item>	getAdjacent(MapEditor::Item item) const;
+	vector<MapEditor::Item>	getAdjacentRestricted(MapEditor::Item item) const;
 
 	// Helper for selectAdjacent
 	static bool wallMatches(MapSide* side, MapEditor::ItemType part, string tex);
 	void		getAdjacentWalls(MapEditor::Item item, vector<MapEditor::Item>& list) const;
+	void		getAdjacentWallsRestricted(MapEditor::Item item, vector<MapEditor::Item>& list) const;
 	void		getAdjacentFlats(MapEditor::Item item, vector<MapEditor::Item>& list) const;
 
 	// Helper for autoAlignX3d

@@ -68,6 +68,22 @@ void Edit3D::selectAdjacent(MapEditor::Item item) const
 	context_.selectionUpdated();
 }
 
+/* Edit3D::selectAdjacentRestricted
+ * Selects all adjacent walls or flats to [item], restricted to close matches
+ *******************************************************************/
+void Edit3D::selectAdjacentRestricted(MapEditor::Item item) const
+{
+	// Check item
+	if (item.index < 0)
+		return;
+
+	// Select every adjacent item
+	context_.selection().select(getAdjacentRestricted(item));
+	context_.selectionUpdated();
+}
+
+
+
 /* Edit3D::changeSectorLight
  * Changes the light level of selected sectors by [amount]
  *******************************************************************/
@@ -1430,6 +1446,31 @@ vector<MapEditor::Item> Edit3D::getAdjacent(MapEditor::Item item) const
 	return list;
 }
 
+/* Edit3D::getAdjacent
+ * Returns a list of all walls or flats adjacent to [item]. Adjacent
+ * meaning connected and sharing a texture
+ *******************************************************************/
+vector<MapEditor::Item> Edit3D::getAdjacentRestricted(MapEditor::Item item) const
+{
+	vector<MapEditor::Item> list;
+
+	// Check item
+	if (item.index < 0 || item.type == ItemType::Thing)
+		return list;
+
+	// Flat
+	if (item.type == ItemType::Floor || item.type == ItemType::Ceiling)
+		getAdjacentFlats(item, list);
+
+		// Wall
+	else if (item.type != ItemType::Thing)
+		getAdjacentWallsRestricted(item, list);
+
+	return list;
+}
+
+
+
 /* Edit3D::wallMatches
  * Returns true if the texture [part] of [side] matches [tex]
  *******************************************************************/
@@ -1470,6 +1511,97 @@ bool Edit3D::wallMatches(MapSide* side, ItemType part, string tex)
 
 	return true;
 }
+
+/* Edit3D::getAdjacentWalls
+ * Adds all adjacent walls to [item] to [list]. Adjacent meaning
+ * connected and sharing a texture
+ *******************************************************************/
+void Edit3D::getAdjacentWallsRestricted(MapEditor::Item item, vector<MapEditor::Item>& list) const
+{
+	// Add item to list if needed
+	for (unsigned a = 0; a < list.size(); a++)
+	{
+		if (list[a].type == item.type && list[a].index == item.index)
+			return;
+	}
+	list.push_back(item);
+
+	// Get initial side
+	auto side = context_.map().getSide(item.index);
+	if (!side)
+		return;
+
+	// Get initial line
+	auto line = side->getParentLine();
+    bool front = (line->s1() == side);
+	if (!line)
+		return;
+
+	// Get texture to match
+	string tex;
+	if (item.type == ItemType::WallBottom)
+		tex = side->stringProperty("texturebottom");
+	else if (item.type == ItemType::WallMiddle)
+		tex = side->stringProperty("texturemiddle");
+	else
+		tex = side->stringProperty("texturetop");
+
+	// Go through attached lines (vertex 1)
+	for (unsigned a = 0; a < line->v1()->nConnectedLines(); a++)
+	{
+		auto oline = line->v1()->connectedLine(a);
+		if (!oline || oline == line)
+			continue;
+
+		// Get line sides
+		auto side1 = front?oline->s1():oline->s2();
+
+		// Front side
+		if (side1)
+		{
+			// Upper texture
+			if (item.type == ItemType::WallTop && wallMatches(side1, ItemType::WallTop, tex))
+				getAdjacentWallsRestricted({ (int)side1->getIndex(), ItemType::WallTop }, list);
+
+			// Middle texture
+			if (item.type == ItemType::WallTop && wallMatches(side1, ItemType::WallMiddle, tex))
+				getAdjacentWallsRestricted({ (int)side1->getIndex(), ItemType::WallMiddle }, list);
+
+			// Lower texture
+			if (item.type == ItemType::WallBottom && wallMatches(side1, ItemType::WallBottom, tex))
+				getAdjacentWallsRestricted({ (int)side1->getIndex(), ItemType::WallBottom }, list);
+		}
+	}
+
+	// Go through attached lines (vertex 2)
+	for (unsigned a = 0; a < line->v2()->nConnectedLines(); a++)
+	{
+		auto oline = line->v2()->connectedLine(a);
+		if (!oline || oline == line)
+			continue;
+
+		// Get line sides
+		auto side1 = front?oline->s1():oline->s2();
+
+		// Front side
+		if (side1)
+		{
+			// Upper texture
+			if (item.type == ItemType::WallTop && wallMatches(side1, ItemType::WallTop, tex))
+				getAdjacentWallsRestricted({ (int)side1->getIndex(), ItemType::WallTop }, list);
+
+			// Middle texture
+			if (item.type == ItemType::WallTop && wallMatches(side1, ItemType::WallMiddle, tex))
+				getAdjacentWallsRestricted({ (int)side1->getIndex(), ItemType::WallMiddle }, list);
+
+			// Lower texture
+			if (item.type == ItemType::WallBottom && wallMatches(side1, ItemType::WallBottom, tex))
+				getAdjacentWallsRestricted({ (int)side1->getIndex(), ItemType::WallBottom }, list);
+		}
+	}
+}
+
+
 
 /* Edit3D::getAdjacentWalls
  * Adds all adjacent walls to [item] to [list]. Adjacent meaning

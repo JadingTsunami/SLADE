@@ -231,7 +231,9 @@ bool Input::mouseDown(MouseButton button, bool double_click)
 			{
 				// Shift down, select all matching adjacent structures
 				if (shift_down_)
-					context_.edit3D().selectAdjacent(context_.hilightItem());
+                    context_.edit3D().selectAdjacent(context_.hilightItem());
+                else if(alt_down_)
+                    context_.edit3D().selectAdjacentRestricted(context_.hilightItem());
 
 				// Otherwise toggle selection
 				else
