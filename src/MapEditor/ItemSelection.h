@@ -52,6 +52,7 @@ public:
 
 	bool	updateHilight(fpoint2_t mouse_pos, double dist_scale);
 	void	clear();
+    void    swapLast();
 
 	void	select(const MapEditor::Item& item, bool select = true, bool new_change = true);
 	void	select(const vector<MapEditor::Item>& items, bool select = true, bool new_change = true);
@@ -84,6 +85,7 @@ public:
 private:
 	MapEditor::Item			hilight_;
 	vector<MapEditor::Item>	selection_;
+	vector<MapEditor::Item>	last_selection_;
 	bool					hilight_lock_;
 	ChangeSet				last_change_;
 	MapEditContext*			context_;

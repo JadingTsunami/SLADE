@@ -182,12 +182,31 @@ void ItemSelection::clear()
 	for (auto& item : selection_)
 		last_change_[item] = false;
 
+    last_selection_ = selection_;
 	// Clear selection
 	selection_.clear();
 
 	if (context_)
 		context_->selectionUpdated();
 }
+
+/* ItemSelection::swapLast
+ * Swap the current selection with the one before it
+ * ("re-select")
+ *******************************************************************/
+void ItemSelection::swapLast()
+{
+	vector<MapEditor::Item>	swap_selection_;
+
+    swap_selection_ = selection_;
+    selection_ = last_selection_;
+    last_selection_ = swap_selection_;
+
+	if (context_)
+		context_->selectionUpdated();
+}
+
+
 
 /* ItemSelection::select
  * Changes the selection status of [item] to [select]. If

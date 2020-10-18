@@ -554,7 +554,9 @@ void Input::onKeyBindPress(string name)
             }
 			context_.setEditMode(Mode::Visual);
         }
-	}
+	} else if( name == "map_swap_selection" ) {
+        context_.selection().swapLast();
+    }
 
 	// Send to edit context first
 	if (mouse_state_ == MouseState::Normal)
