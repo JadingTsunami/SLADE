@@ -19,3 +19,4 @@ A fork of slade where I keep my own personal QoL enhancement features, mostly fo
 * Add MBF specials to Boom linedef definitions
 * Add running increment and decrement options to properties panel.
 * Hold "alt" and left-click in 3D mode to perform "Restricted" flood selection (only select same upper/mid/lower texture as the clicked one, and only the same line side (i.e., front vs. back))
+* Add keybind (Ctrl+Shift+E) to toggle last selection
