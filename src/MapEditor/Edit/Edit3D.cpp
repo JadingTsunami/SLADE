@@ -1564,7 +1564,7 @@ void Edit3D::getAdjacentWallsRestricted(MapEditor::Item item, vector<MapEditor::
 				getAdjacentWallsRestricted({ (int)side1->getIndex(), ItemType::WallTop }, list);
 
 			// Middle texture
-			if (item.type == ItemType::WallTop && wallMatches(side1, ItemType::WallMiddle, tex))
+			if (item.type == ItemType::WallMiddle && wallMatches(side1, ItemType::WallMiddle, tex))
 				getAdjacentWallsRestricted({ (int)side1->getIndex(), ItemType::WallMiddle }, list);
 
 			// Lower texture
@@ -1591,7 +1591,7 @@ void Edit3D::getAdjacentWallsRestricted(MapEditor::Item item, vector<MapEditor::
 				getAdjacentWallsRestricted({ (int)side1->getIndex(), ItemType::WallTop }, list);
 
 			// Middle texture
-			if (item.type == ItemType::WallTop && wallMatches(side1, ItemType::WallMiddle, tex))
+			if (item.type == ItemType::WallMiddle && wallMatches(side1, ItemType::WallMiddle, tex))
 				getAdjacentWallsRestricted({ (int)side1->getIndex(), ItemType::WallMiddle }, list);
 
 			// Lower texture
