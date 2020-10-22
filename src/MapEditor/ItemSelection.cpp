@@ -182,7 +182,9 @@ void ItemSelection::clear()
 	for (auto& item : selection_)
 		last_change_[item] = false;
 
-    last_selection_ = selection_;
+    if( selection_.size() > 0 )
+        last_selection_ = selection_;
+
 	// Clear selection
 	selection_.clear();
 
