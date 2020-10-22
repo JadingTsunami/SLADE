@@ -911,7 +911,7 @@ bool MapEditorWindow::saveMap()
 		return saveMapAs();
 
 	// Write map to temp wad
-	WadArchive* wad = writeMap();
+	WadArchive* wad = writeMap(mdesc_current.name);
 	if (!wad)
 		return false;
 
@@ -937,6 +937,13 @@ bool MapEditorWindow::saveMap()
 
 	// Delete current map entries
 	ArchiveEntry* entry = map.end;
+
+    // Check for GL Nodes, fast forward if they exist
+    if (entry && entry->nextEntry() && entry->nextEntry()->getName().CmpNoCase(S_FMT("GL_%s", mdesc_current.name)) == 0) {
+        while (entry && entry->getName().CmpNoCase("GL_PVS") != 0)
+            entry = entry->nextEntry();
+    }
+
 	Archive* archive = map.head->getParent();
 	while (entry && entry != map.head)
 	{
