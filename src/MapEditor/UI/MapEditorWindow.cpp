@@ -940,7 +940,7 @@ bool MapEditorWindow::saveMap()
 
     // Check for GL Nodes, fast forward if they exist
     if (entry && entry->nextEntry() && entry->nextEntry()->getName().CmpNoCase(S_FMT("GL_%s", mdesc_current.name)) == 0) {
-        while (entry && entry->getName().CmpNoCase("GL_PVS") != 0)
+        while (entry->nextEntry() && entry->nextEntry()->getName().StartsWith("GL_") == true)
             entry = entry->nextEntry();
     }
 
