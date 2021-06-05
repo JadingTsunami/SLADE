@@ -45,6 +45,7 @@ CVAR(Int, shapedraw_shape, 0, CVAR_SAVE)
 CVAR(Bool, shapedraw_centered, false, CVAR_SAVE)
 CVAR(Bool, shapedraw_lockratio, false, CVAR_SAVE)
 CVAR(Int, shapedraw_sides, 16, CVAR_SAVE)
+CVAR(Int, shapedraw_sub, 16, CVAR_SAVE)
 
 
 /*******************************************************************
@@ -239,7 +240,7 @@ void LineDraw::updateShape(fpoint2_t point)
 		// Add ellipse points
 		double rot = 0;
 		fpoint2_t start;
-		for (int a = 0; a < shapedraw_sides; a++)
+		for (int a = 0; a < MAX(3, shapedraw_sides - shapedraw_sub); a++)
 		{
 			// Calculate point (rounded)
 			fpoint2_t p(

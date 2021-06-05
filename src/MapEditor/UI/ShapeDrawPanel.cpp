@@ -42,6 +42,7 @@
 // ----------------------------------------------------------------------------
 EXTERN_CVAR(Int, shapedraw_sides)
 EXTERN_CVAR(Int, shapedraw_shape)
+EXTERN_CVAR(Int, shapedraw_sub)
 EXTERN_CVAR(Bool, shapedraw_centered)
 EXTERN_CVAR(Bool, shapedraw_lockratio)
 
@@ -84,13 +85,16 @@ ShapeDrawPanel::ShapeDrawPanel(wxWindow* parent) : wxPanel{ parent, -1 }
 	wxBoxSizer* hbox2 = new wxBoxSizer(wxHORIZONTAL);
 	panel_sides_->SetSizer(hbox2);
 	spin_sides_ = new wxSpinCtrl(panel_sides_, -1, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS|wxALIGN_LEFT|wxTE_PROCESS_ENTER, MIN_ELLIPSE_SIDES, MAX_ELLIPSE_SIDES);
+	spin_sub_ = new wxSpinCtrl(panel_sides_, -1, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxSP_ARROW_KEYS|wxALIGN_LEFT|wxTE_PROCESS_ENTER, MIN_ELLIPSE_SUB, MAX_ELLIPSE_SUB);
 	hbox2->Add(WxUtils::createLabelHBox(panel_sides_, "Sides:", spin_sides_), 1, wxEXPAND);
+	hbox2->Add(WxUtils::createLabelHBox(panel_sides_, "sub:", spin_sub_), 1, wxEXPAND);
 
 	// Set control values
 	choice_shape_->SetSelection(shapedraw_shape);
 	cb_centered_->SetValue(shapedraw_centered);
 	cb_lockratio_->SetValue(shapedraw_lockratio);
 	spin_sides_->SetValue(shapedraw_sides);
+	spin_sub_->SetValue(shapedraw_sub);
 
 	// Show shape controls with most options (to get minimum height)
 	showShapeOptions(1);
@@ -108,7 +112,9 @@ ShapeDrawPanel::ShapeDrawPanel(wxWindow* parent) : wxPanel{ parent, -1 }
 	cb_centered_->Bind(wxEVT_CHECKBOX, [&](wxCommandEvent&) { shapedraw_centered = cb_centered_->GetValue(); });
 	cb_lockratio_->Bind(wxEVT_CHECKBOX, [&](wxCommandEvent&) { shapedraw_lockratio = cb_lockratio_->GetValue(); });
 	spin_sides_->Bind(wxEVT_SPINCTRL, [&](wxCommandEvent&) { shapedraw_sides = spin_sides_->GetValue(); });
+	spin_sub_->Bind(wxEVT_SPINCTRL, [&](wxCommandEvent&) { shapedraw_sub = spin_sub_->GetValue(); });
 	spin_sides_->Bind(wxEVT_TEXT_ENTER, [&](wxCommandEvent&) { shapedraw_sides = spin_sides_->GetValue(); });
+	spin_sub_->Bind(wxEVT_TEXT_ENTER, [&](wxCommandEvent&) { shapedraw_sub = spin_sub_->GetValue(); });
 }
 
 void ShapeDrawPanel::setCentered(bool v)
@@ -131,6 +137,16 @@ void ShapeDrawPanel::offsetSides(int offset)
     shapedraw_sides = MIN(MAX_ELLIPSE_SIDES, shapedraw_sides);
     spin_sides_->SetValue(shapedraw_sides);
 }
+
+void ShapeDrawPanel::offsetSub(int offset)
+{
+    shapedraw_sub = shapedraw_sub + offset;
+    /* don't allow illegal values */
+    shapedraw_sub = MAX(MIN_ELLIPSE_SUB, shapedraw_sub);
+    shapedraw_sub = MIN(MAX_ELLIPSE_SUB, shapedraw_sub);
+    spin_sub_->SetValue(shapedraw_sub);
+}
+
 
 
 void ShapeDrawPanel::setActiveShape(int shape)

@@ -306,6 +306,12 @@ bool Input::mouseDown(MouseButton button, bool double_click)
 			// Begin box selection if shift is held down, otherwise toggle selection on hilighted object
 			else if (shift_down_)
 				mouse_state_ = MouseState::Selection;
+            else if (ctrl_down_)
+            {
+                // Begin move if something is selected/hilighted
+                if (context_.selection().hasHilightOrSelection())
+                    mouse_drag_ = DragType::Move;
+            }
 			else
 			{
 				if (!context_.selection().toggleCurrent(selection_clear_click))
@@ -692,6 +698,16 @@ void Input::handleKeyBind2d(const string& name)
 
         else if (name == "me2d_begin_shapedraw_dec_sides") {
             MapEditor::window()->panel_shapedraw->offsetSides(-1);
+            context_.lineDraw().updateShape(mouse_pos_map_);
+        }
+
+        else if (name == "me2d_begin_shapedraw_inc_sub") {
+            MapEditor::window()->panel_shapedraw->offsetSub(1);
+            context_.lineDraw().updateShape(mouse_pos_map_);
+        }
+
+        else if (name == "me2d_begin_shapedraw_dec_sub") {
+            MapEditor::window()->panel_shapedraw->offsetSub(-1);
             context_.lineDraw().updateShape(mouse_pos_map_);
         }
 
