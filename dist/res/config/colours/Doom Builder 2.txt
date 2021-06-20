@@ -135,6 +135,13 @@ colours
 		rgb = 109, 255, 159;
 	}
 
+	map_line_secret
+	{
+		name = "Line: Secret Sector";
+		group = "Map Editor";
+		rgb = 181, 62, 201;
+	}
+
 	map_linedraw
 	{
 		name = "Line Drawing";

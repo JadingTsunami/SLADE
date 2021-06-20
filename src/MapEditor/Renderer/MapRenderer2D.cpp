@@ -340,11 +340,18 @@ rgba_t MapRenderer2D::lineColour(MapLine* line, bool ignore_filter)
 	if (line)
 	{
 		// Check for special line
-		if (line->intProperty("special") > 0)
+		if (line->intProperty("special") > 0) {
 			col.set(ColourConfiguration::getColour("map_line_special"));
-		else if (line->s1())
+        } else if (line->s1()) {
 			col.set(ColourConfiguration::getColour("map_line_normal"));
-		else
+            int secnum = line->s1()->intProperty("sector");
+            if (secnum >= 0) {
+                MapSector* s = map->getSector(secnum);
+                if (s && s->intProperty("special") == 9) {
+                    col.set(ColourConfiguration::getColour("map_line_secret"));
+                }
+            }
+        } else
 			col.set(ColourConfiguration::getColour("map_line_invalid"));
 
 		// Check for two-sided line

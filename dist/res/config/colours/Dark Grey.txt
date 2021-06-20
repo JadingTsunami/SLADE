@@ -131,6 +131,13 @@ colours {
 		rgb = 180, 255, 30;
 	}
 
+	map_line_secret
+	{
+		name = "Line: Secret Sector";
+		group = "Map Editor";
+		rgb = 181, 62, 201;
+	}
+
 	map_line_invalid
 	{
 		name = "Line: Invalid";

@@ -238,6 +238,13 @@ colours {
 		rgb = 255, 255, 255;
 	}
 
+	map_line_secret
+	{
+		name = "Line: Secret Sector";
+		group = "Map Editor";
+		rgb = 181, 62, 201;
+	}
+
 	map_line_special
 	{
 		name = "Line: Special";

@@ -22,3 +22,4 @@ A fork of slade where I keep my own personal QoL enhancement features, mostly fo
 * Add keybind (Ctrl+Shift+E) to toggle last selection
 * Ability to "chop" an ellipse to create semicircles. Keybind for the same.
 * Apply SHIFT key when pressed to quick texture seaches.
+* Add color for sectors with "secret" special (not BOOM generalized sector compatible).
