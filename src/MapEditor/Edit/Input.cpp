@@ -506,7 +506,10 @@ bool Input::keyDown(const string& key) const
 {
 	// Send to overlay if active
 	if (context_.overlayActive())
-		context_.currentOverlay()->keyDown(key);
+        if (!shift_down_)
+            context_.currentOverlay()->keyDown(key);
+        else if (key == '-') /* shift is down also at this point */
+            context_.currentOverlay()->keyDown("_");
 
 	// Let keybind system handle it
 	return KeyBind::keyPressed({ key, alt_down_, ctrl_down_, shift_down_ });
