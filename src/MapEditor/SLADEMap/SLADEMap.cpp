@@ -5126,22 +5126,44 @@ void SLADEMap::correctSectors(vector<MapLine*> lines, bool existing_only)
 		line->clearUnneededTextures();
 
 		// Set middle texture if needed
-		if (sides_[a] == line->s1() && !line->s2() && sides_[a]->stringProperty("texturemiddle") == "-")
-		{
-			//LOG_MESSAGE(1, "midtex");
-			// Find adjacent texture (any)
-			string tex = getAdjacentLineTexture(line->v1());
-			if (tex == "-")
-				tex = getAdjacentLineTexture(line->v2());
+		if (sides_[a] == line->s1() && !line->s2())
+        {
+                if(sides_[a]->stringProperty("texturemiddle") == "-") {
+                    //LOG_MESSAGE(1, "midtex");
+                    // Find adjacent texture (any)
+                    string tex = getAdjacentLineTexture(line->v1());
+                    if (tex == "-")
+                        tex = getAdjacentLineTexture(line->v2());
 
-			// If no adjacent texture, get default from game configuration
-			if (tex == "-")
-				tex = Game::configuration().getDefaultString(MOBJ_SIDE, "texturemiddle");
+                    // If no adjacent texture, get default from game configuration
+                    if (tex == "-")
+                        tex = Game::configuration().getDefaultString(MOBJ_SIDE, "texturemiddle");
 
-			// Set texture
-			sides_[a]->setStringProperty("texturemiddle", tex);
-		}
-	}
+                    // Set texture
+                    sides_[a]->setStringProperty("texturemiddle", tex);
+                }
+        } else if(line->s1() && line->s2()) {
+            int needed = line->needsTexture();
+            string tex = getAdjacentLineTexture(line->v1());
+            if(tex == "-")
+                tex = getAdjacentLineTexture(line->v2());
+
+            /* LOG_MESSAGE(1, S_FMT("line %d needed %d, tex %s", line->intProperty("id"), needed, CHR(tex))); */
+            if(tex != "-") {
+                if (needed & TEX_FRONT_UPPER)
+                    line->s1()->setStringProperty("texturetop", tex);
+
+                if (needed & TEX_FRONT_LOWER)
+                    line->s1()->setStringProperty("texturebottom", tex);
+
+                if (needed & TEX_BACK_UPPER)
+                    line->s2()->setStringProperty("texturetop", tex);
+
+                if (needed & TEX_BACK_LOWER)
+                    line->s2()->setStringProperty("texturebottom", tex);
+            }
+        }
+    }
 
 	// Remove any extra sectors
 	removeDetachedSectors();

@@ -137,6 +137,7 @@ public:
 	void	updateThingLists();
 	void	setCursor(UI::MouseCursor cursor) const;
 	void	forceRefreshRenderer();
+    void    fillTexturesInSelection();
 	
 
 	// SAction handler

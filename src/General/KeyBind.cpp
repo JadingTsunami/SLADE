@@ -594,6 +594,7 @@ void KeyBind::initBinds()
 	addBind("me2d_mirror_y", keypress_t("M", KPM_CTRL|KPM_SHIFT), "Mirror selection vertically", group);
 	addBind("me2d_object_properties", keypress_t("return"), "Object Properties", group, false, 100);
 	addBind("me2d_move_things_with_sector", keypress_t("P", KPM_CTRL|KPM_SHIFT), "Toggle moving things with sectors", group);
+	addBind("me_fill_missing_textures_in_selection", keypress_t("U", KPM_CTRL|KPM_SHIFT), "Fill missing textures in selection", group);
 
 	// Map Editor 2D Lines mode (me2d_line*)
 	group = "Map Editor 2D Lines Mode";

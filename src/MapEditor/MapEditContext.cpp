@@ -1224,6 +1224,12 @@ bool MapEditContext::handleKeyBind(string key, fpoint2_t position)
 		else
 			return false;
 	}
+
+    else if (key == "me_fill_missing_textures_in_selection") {
+        fillTexturesInSelection();
+        addEditorMessage("Filled missing textures in selection");
+    }
+
 	else
 		return false;
 
@@ -1569,6 +1575,99 @@ void MapEditContext::openQuickTextureOverlay()
 		renderer_.renderer3D().enableSelection(false);
 		selection_.lockHilight(true);
 	}
+}
+
+void fillTexture(MapLine* line, MapSide* side, int part, string partString)
+{
+    if(!part) return;
+    /* make sure a new texture is actually needed first */
+    if(side && side->stringProperty(partString) != "-")
+        return;
+    SLADEMap& map = MapEditor::editContext().map();
+    string tex = map.getAdjacentLineTexture(line->v1(), part);
+    if (tex == "-")
+        tex = map.getAdjacentLineTexture(line->v2(), part);
+    /* try midtex */
+    if (tex == "-")
+        tex = map.getAdjacentLineTexture(line->v1());
+    if (tex == "-")
+        tex = map.getAdjacentLineTexture(line->v2());
+
+    /* found nothing, use default */
+    if (tex == "-")
+        tex = Game::configuration().getDefaultString(MOBJ_SIDE, "texturemiddle");
+
+    if (tex != "-") {
+        side->setStringProperty(partString, tex);
+        /* peg if needed */
+        if( part & (TEX_FRONT_UPPER | TEX_BACK_UPPER) )
+			Game::configuration().setLineBasicFlag(
+				"dontpegtop",
+				line,
+				map.currentFormat(),
+				true
+			);
+        if( part & (TEX_FRONT_LOWER | TEX_BACK_LOWER) )
+			Game::configuration().setLineBasicFlag(
+				"dontpegbottom",
+				line,
+				map.currentFormat(),
+				true
+			);
+    } else {
+        LOG_MESSAGE(1, "Failed to find suitable candidate for missing texture.");
+    }
+}
+
+void MapEditContext::fillTexturesInSelection()
+{
+	// Get selection
+    vector<MapLine*> lines;
+
+    for (auto& item : selection_)
+    {
+		if (item.type == MapEditor::ItemType::Line || baseItemType(item.type) == MapEditor::ItemType::Line) {
+			lines.push_back(map_.getLine(item.index));
+        } else if (item.type == MapEditor::ItemType::Side || baseItemType(item.type) == MapEditor::ItemType::Side) {
+			MapLine* l = map_.getSide(item.index)->getParentLine();
+            if(l) lines.push_back(l);
+        } else if (item.type == MapEditor::ItemType::Sector || baseItemType(item.type) == MapEditor::ItemType::Sector) {
+            vector<MapLine*> slines;
+            MapSector* sector = map_.getSector(item.index);
+            sector->getLines(slines);
+            for (auto aline : slines)
+                lines.push_back(aline);
+        }
+    }
+
+	// Open line texture overlay if anything is selected
+    bool any = false;
+	if (lines.size() > 0)
+	{
+		for (unsigned a = 0; a < lines.size(); a++) {
+            MapLine* line = lines[a];
+            int needed = line->needsTexture();
+            if(needed && !any) {
+                any = true;
+                beginUndoRecord("Fill missing textures", true, false, false);
+            }
+
+            if (line->s1())
+            {
+                fillTexture(line, line->s1(), needed & TEX_FRONT_UPPER, "texturetop");
+                fillTexture(line, line->s1(), needed & TEX_FRONT_MIDDLE, "texturemiddle");
+                fillTexture(line, line->s1(), needed & TEX_FRONT_LOWER, "texturebottom");
+            }
+            if (line->s2())
+            {
+                fillTexture(line, line->s2(), needed & TEX_BACK_UPPER, "texturetop");
+                fillTexture(line, line->s2(), needed & TEX_BACK_MIDDLE, "texturemiddle");
+                fillTexture(line, line->s2(), needed & TEX_BACK_LOWER, "texturebottom");
+            }
+        }
+    }
+    if(any)
+        endUndoRecord(true);
 }
 
 // ----------------------------------------------------------------------------
