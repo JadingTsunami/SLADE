@@ -355,8 +355,12 @@ rgba_t MapRenderer2D::lineColour(MapLine* line, bool ignore_filter)
 			col.set(ColourConfiguration::getColour("map_line_invalid"));
 
 		// Check for two-sided line
-		if (line->s2())
+		if (line->s2()) {
 			col.a *= 0.5f;
+            if (Game::configuration().lineBasicFlagSet("blocking", line, map->currentFormat())) {
+                col.a *= 1.6;
+            }
+        }
 
 		// Check if filtered
 		if (line->isFiltered() && !ignore_filter)
