@@ -400,6 +400,10 @@ void MapEditorConfigDialog::populateMapList()
 
 	// Get all archive maps
 	maps = archive->detectMaps();
+    sort(maps.begin(), maps.end(), []
+            (const Archive::MapDesc& first, const Archive::MapDesc& second){
+            return first.name < second.name;
+            });
 
 	// Get currently selected game/port
 	string game = games_list[choice_game_config->GetSelection()];
