@@ -230,6 +230,10 @@ void Edit2D::splitLine(double x, double y, double min_dist) const
 	// Get closest point on the line
 	auto closest = MathStuff::closestPointOnLine(point, line->seg());
 
+    /* JDS: Respect snap to grid setting when splitting lines */
+    closest.x = context_.snapToGrid(closest.x, false);
+    closest.y = context_.snapToGrid(closest.y, false);
+
 	// Create vertex there
 	auto vertex = context_.map().createVertex(closest.x, closest.y);
 
