@@ -737,6 +737,33 @@ void Input::handleKeyBind2d(const string& name)
 			context_.edit2D().paste(mouse_pos_map_);
 		}
 
+
+        else if (name == "me2d_paste_grow_x")
+        {
+			context_.edit2D().paste_resize(context_.gridSize(), 0);
+        }
+        else if (name == "me2d_paste_grow_y")
+        {
+			context_.edit2D().paste_resize(0, context_.gridSize());
+        }
+        else if (name == "me2d_paste_grow_both")
+        {
+			context_.edit2D().paste_resize(context_.gridSize(), context_.gridSize());
+        }
+
+        else if (name == "me2d_paste_shrink_x")
+        {
+			context_.edit2D().paste_resize(-context_.gridSize(), 0);
+        }
+        else if (name == "me2d_paste_shrink_y")
+        {
+			context_.edit2D().paste_resize(0, -context_.gridSize());
+        }
+        else if (name == "me2d_paste_shrink_both")
+        {
+			context_.edit2D().paste_resize(-context_.gridSize(), -context_.gridSize());
+        }
+
 		// Cancel paste
 		else if (name == "map_edit_cancel")
 			mouse_state_ = MouseState::Normal;
@@ -959,7 +986,7 @@ void Input::handleKeyBind2d(const string& name)
 
 			// Begin paste if appropriate data exists
 			if (item)
-				mouse_state_ = MouseState::Paste;
+                mouse_state_ = MouseState::Paste;
 		}
 
 		// Toggle selection numbers

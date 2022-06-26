@@ -663,6 +663,55 @@ void Edit2D::copy() const
 	}
 }
 
+
+/* Edit2D::paste_resize
+ * Resize pasted map architecture, centered on the midpoint.
+ * Note this is NOT a scaling up/down!
+ *******************************************************************/
+void Edit2D::paste_resize(double resize_x, double resize_y)
+{
+	// Go through clipboard items
+	for (unsigned a = 0; a < theClipboard->nItems(); a++)
+	{
+		if (theClipboard->getItem(a)->getType() == CLIPBOARD_MAP_ARCH)
+		{
+			auto clip = (MapArchClipboardItem*)theClipboard->getItem(a);
+            vector<MapVertex*> v = clip->vertices;
+
+            bbox_t bbox;
+            for(unsigned i = 0; i < v.size(); i++) {
+                bbox.extend(v[i]->floatProperty("x"), v[i]->floatProperty("y"));
+            }
+
+            if(!bbox.is_valid()) continue;
+
+            fpoint2_t midp = bbox.mid();
+
+            double midx = midp.x;
+            double midy = midp.y;
+
+            for(unsigned i = 0; i < v.size(); i++) {
+                double xp = v[i]->floatProperty("x");
+                double yp = v[i]->floatProperty("y");
+                if (xp > midx) xp += resize_x;
+                else xp -= resize_x;
+                if (yp > midy) yp += resize_y;
+                else yp -= resize_y;
+                v[i]->setFloatProperty("x", xp);
+                v[i]->setFloatProperty("y", yp);
+            }
+		}
+
+		// Things
+		else if (theClipboard->getItem(a)->getType() == CLIPBOARD_MAP_THINGS)
+		{
+            // TODO: Skip for now. In future, may want to re-align these
+            // with pasted architecture.
+        }
+    }
+
+}
+
 /* Edit2D::paste
  * Pastes previously copied objects at [mouse_pos]
  *******************************************************************/

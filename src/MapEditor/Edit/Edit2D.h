@@ -38,6 +38,7 @@ public:
 	void	paste(fpoint2_t mouse_pos) const;
 	void	copyProperties(MapObject* object = nullptr);
 	void	pasteProperties();
+	void	paste_resize(double resize_x, double resize_y);
 
 	// Create / Delete
 	void	createObject(double x, double y);

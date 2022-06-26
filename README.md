@@ -26,4 +26,5 @@ A fork of slade where I keep my own personal QoL enhancement features, mostly fo
 * When building sectors, automatically add upper/lower textures if they're needed, inheriting from nearby sectors.
 * Keybind to automatically find and assign missing textures to walls.
 * 2S lines that are impassable render with less transparency than non-blocking 2S lines.
-* Respect "snap to grid" setting when splitting lines
+* Respect "snap to grid" setting when splitting lines.
+* Keybind to grow/shrink pasted map architecture before merging into the map.

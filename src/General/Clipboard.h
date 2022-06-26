@@ -62,14 +62,13 @@ class MapSector;
 class SLADEMap;
 class MapArchClipboardItem : public ClipboardItem
 {
-private:
+public:
 	vector<MapVertex*>	vertices;
 	vector<MapSide*>	sides;
 	vector<MapLine*>	lines;
 	vector<MapSector*>	sectors;
 	fpoint2_t			midpoint;
 
-public:
 	MapArchClipboardItem();
 	~MapArchClipboardItem();
 
