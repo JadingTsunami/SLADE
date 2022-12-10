@@ -237,8 +237,11 @@ void MOPGIntProperty::applyValue()
     bool relative_div = expr.StartsWith("//");
     bool relative_inc = expr.StartsWith("inc");
     bool relative_dec = expr.StartsWith("dec");
+    bool relative_from_floor = expr.StartsWith("F");
+    bool relative_from_ceil = expr.StartsWith("C");
 
-    bool is_relative = relative_add || relative_sub || relative_mul || relative_div;
+
+    bool is_relative = relative_add || relative_sub || relative_mul || relative_div || relative_from_floor || relative_from_ceil;
     bool is_increment = relative_inc || relative_dec;
     int relative_offset = 0;
     int increment = 0;
@@ -274,6 +277,12 @@ void MOPGIntProperty::applyValue()
                 new_value /= relative_offset;
             } else if( is_increment ) {
                 new_value += increment * (a+1);
+            } else if( relative_from_floor ) {
+                int floor = objects[a]->intProperty("heightfloor");
+                new_value = std::round(te_interp(std::to_string(floor) + m_value.GetString().Mid(1),NULL));
+            } else if( relative_from_ceil ) {
+                int ceil = objects[a]->intProperty("heightceiling");
+                new_value = std::round(te_interp(std::to_string(ceil) + m_value.GetString().Mid(1),NULL));
             }
 
             objects[a]->setIntProperty(GetName(), new_value);
