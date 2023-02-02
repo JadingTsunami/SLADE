@@ -664,6 +664,52 @@ void Edit2D::copy() const
 }
 
 
+/* Edit2D::paste_rotate
+ * Rotate pasted map architecture, centered on the midpoint.
+ *******************************************************************/
+void Edit2D::paste_rotate(double angle)
+{
+	// Go through clipboard items
+	for (unsigned a = 0; a < theClipboard->nItems(); a++)
+	{
+		if (theClipboard->getItem(a)->getType() == CLIPBOARD_MAP_ARCH)
+		{
+			auto clip = (MapArchClipboardItem*)theClipboard->getItem(a);
+            vector<MapVertex*> v = clip->vertices;
+
+            bbox_t bbox;
+            for(unsigned i = 0; i < v.size(); i++) {
+                bbox.extend(v[i]->floatProperty("x"), v[i]->floatProperty("y"));
+            }
+
+            if(!bbox.is_valid()) continue;
+
+            fpoint2_t midp = bbox.mid();
+
+
+            for (auto& vertex : v) {
+                fpoint2_t new_pos = MathStuff::rotatePoint(midp, vertex->point(), angle);
+                vertex->setFloatProperty("x", new_pos.x);
+                vertex->setFloatProperty("y", new_pos.y);
+            }
+
+		}
+
+		// Things
+		else if (theClipboard->getItem(a)->getType() == CLIPBOARD_MAP_THINGS)
+		{
+            // TODO: Skip for now. In future, may want to re-align these
+            // with pasted architecture.
+            /*
+             * // Rotate things
+             * for (auto& thing : things_)
+		     * thing.position = MathStuff::rotatePoint(mid, thing.old_position, rotation_);
+             */
+        }
+    }
+
+}
+
 /* Edit2D::paste_resize
  * Resize pasted map architecture, centered on the midpoint.
  * Note this is NOT a scaling up/down!

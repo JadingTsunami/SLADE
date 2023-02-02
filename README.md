@@ -28,4 +28,5 @@ A fork of slade where I keep my own personal QoL enhancement features, mostly fo
 * 2S lines that are impassable render with less transparency than non-blocking 2S lines.
 * Respect "snap to grid" setting when splitting lines.
 * Keybind to grow/shrink pasted map architecture before merging into the map.
+* Keybind to rotate pasted map architecture before merging into the map.
 * Start a sector property panel change with "F"/"C" for an expression starting from the floor/ceiling height, respectively. (Example: Setting a sector's ceiling height to "F+192" will calculate the ceiling height as 192 units above the sector floor height. Can be applied to multiple sectors at once.)

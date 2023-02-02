@@ -39,6 +39,7 @@ public:
 	void	copyProperties(MapObject* object = nullptr);
 	void	pasteProperties();
 	void	paste_resize(double resize_x, double resize_y);
+	void	paste_rotate(double angle);
 
 	// Create / Delete
 	void	createObject(double x, double y);

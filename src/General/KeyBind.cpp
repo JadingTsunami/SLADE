@@ -601,6 +601,10 @@ void KeyBind::initBinds()
 	addBind("me2d_paste_shrink_x", keypress_t("left", KPM_SHIFT), "Decrease pasted shape size, x only", group);
 	addBind("me2d_paste_grow_y", keypress_t("up", KPM_SHIFT), "Increase pasted shape size, x only", group);
 	addBind("me2d_paste_shrink_y", keypress_t("down", KPM_SHIFT), "Decrease pasted shape size, x only", group);
+	addBind("me2d_paste_rotate_ccw_big", keypress_t("left", KPM_ALT), "Rotate pasted shape by -15 degrees", group);
+	addBind("me2d_paste_rotate_cw_big", keypress_t("right", KPM_ALT), "Rotate pasted shape by +15 degrees", group);
+	addBind("me2d_paste_rotate_ccw_small", keypress_t("left", KPM_SHIFT|KPM_ALT), "Rotate pasted shape by -1 degrees", group);
+	addBind("me2d_paste_rotate_cw_small", keypress_t("right", KPM_SHIFT|KPM_ALT), "Rotate pasted shape by +1 degrees", group);
 
 	// Map Editor 2D Lines mode (me2d_line*)
 	group = "Map Editor 2D Lines Mode";

@@ -738,6 +738,22 @@ void Input::handleKeyBind2d(const string& name)
 		}
 
 
+        else if (name == "me2d_paste_rotate_ccw_big")
+        {
+			context_.edit2D().paste_rotate(-15);
+        }
+        else if (name == "me2d_paste_rotate_cw_big")
+        {
+			context_.edit2D().paste_rotate(15);
+        }
+        else if (name == "me2d_paste_rotate_ccw_small")
+        {
+			context_.edit2D().paste_rotate(-1);
+        }
+        else if (name == "me2d_paste_rotate_cw_small")
+        {
+			context_.edit2D().paste_rotate(1);
+        }
         else if (name == "me2d_paste_grow_x")
         {
 			context_.edit2D().paste_resize(context_.gridSize(), 0);
