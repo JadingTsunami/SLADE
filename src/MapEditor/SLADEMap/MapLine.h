@@ -58,8 +58,6 @@ class MapLine : public MapObject
 	friend class SLADEMap;
 private:
 	// Basic data
-	MapVertex*	vertex1;
-	MapVertex*	vertex2;
 	MapSide*	side1;
 	MapSide*	side2;
 	int			special;
@@ -72,6 +70,8 @@ private:
 	fpoint2_t	front_vec;
 
 public:
+	MapVertex*	vertex1;
+	MapVertex*	vertex2;
 	MapLine(SLADEMap* parent = nullptr);
 	MapLine(MapVertex* v1, MapVertex* v2, MapSide* s1, MapSide* s2, SLADEMap* parent = nullptr);
 	~MapLine();

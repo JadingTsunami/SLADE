@@ -723,105 +723,27 @@ void Edit2D::paste_resize(double resize_x, double resize_y)
 			auto clip = (MapArchClipboardItem*)theClipboard->getItem(a);
             vector<MapVertex*> v = clip->vertices;
 
-            vector<vector<MapVertex*>> circuits;
             vector<MapLine*> lines;
             clip->getLines(lines);
 
-            bool all_circuits = true;
-
-            while (!v.empty() && all_circuits) {
-                /* pick one from the list, remove it from the search list */
-                vector<MapVertex*> circuit;
-                MapVertex* vert_head = (MapVertex*) v.back();
-                circuit.push_back(vert_head);
-                v.pop_back();
-
-                fpoint2_t v_head = vert_head->point();
-
-                bool circuit_closed = false;
-
-                fpoint2_t v_current = v_head;
-                bool vfound = true;
-                while (!circuit_closed && !v.empty() && vfound) {
-                    /* find an edge that uses that vertex as a start */
-                    /* warning: this assumes the vertices that make up
-                     * the lines in the clip are also in the clip */
-                    /* if it's in the search list, grab it and goto 1 */
-                    /* if it's the start vertex, stop -- this circuit is completed */
-                    vfound = false;
-                    for (MapLine* line : lines) {
-                        fpoint2_t vnext;
-                        if (v_current == line->point1()) {
-                            vnext = line->point2();
-                            vfound = true;
-                        } else if (v_current == line->point2() && line->frontSector() && line->backSector()) {
-                            vnext = line->point1();
-                            vfound = true;
-                        }
-                        if (vfound) {
-                            /* validate the next node */
-                            /* we returned back to the head, close the circuit */
-                            bool next_valid = false;
-                            if (vnext == v_head) {
-                                circuit_closed = true;
-                            } else {
-                                for (int i = 0; i < v.size() && !next_valid; i++) {
-                                    if (v[i]->point() == vnext) {
-                                        next_valid = true;
-                                    }
-                                }
-                            }
-                            if (circuit_closed || next_valid) {
-                                /* remove the current vertex from the search list */
-                                for (int i = 0; i < v.size(); i++) {
-                                    if (v[i]->point() == v_current) {
-                                        circuit.push_back(v[i]);
-                                        v.erase(v.begin()+i);
-                                    }
-                                }
-                                /* this doesn't matter if the circuit was
-                                 * closed, we're going to exit anyway */
-                                if (circuit_closed)
-                                    circuits.push_back(circuit);
-                                v_current = vnext;
-                                break;
-                            } else {
-                                /* false hit */
-                                vfound = false;
-                            }
-                        }
-                    }
-                }
-                /* if you don't find one, halt and use normal scaling (incomplete circuit) */
-                if (!circuit_closed) {
-                    all_circuits = false;
-                }
-            }
-
-            
-            if (all_circuits) {
-                /* circuit (polygonal) scaling */
-                /* walk through each identified circuit and scale its vertices accordingly */
+            if (!lines.empty()) {
                 context_.addEditorMessage(S_FMT("Polygonal scaling applied."));
-                for (int i = 0; i < circuits.size(); i++) {
+                for (auto& line : lines) {
+                    /* circuit (polygonal) scaling */
+                    /* walk through each identified circuit and scale its vertices accordingly */
                     /* fixup first/last */
-                    MapVertex* c1 = circuits[i][circuits[i].size()-1];
-                    MapVertex* c2 = circuits[i][0];
+                    MapVertex* c1 = line->vertex1;
+                    MapVertex* c2 = line->vertex2;
                     int j = 1;
-                    do {
-                        double dx = c2->floatProperty("x") - c1->floatProperty("x");
-                        double dy = c2->floatProperty("y") - c1->floatProperty("y");
-                        double length = sqrt(dx*dx+dy*dy);
-                        double delta_x = -dy/length;
-                        double delta_y = dx/length;
-                        c1->setFloatProperty("x", c1->floatProperty("x") + resize_x * delta_x * 0.5);
-                        c1->setFloatProperty("y", c1->floatProperty("y") + resize_y * delta_y * 0.5);
-                        c2->setFloatProperty("x", c2->floatProperty("x") + resize_x * delta_x * 0.5);
-                        c2->setFloatProperty("y", c2->floatProperty("y") + resize_y * delta_y * 0.5);
-                        c1 = circuits[i][j-1];
-                        c2 = circuits[i][j];
-                        j++;
-                    } while (j < circuits[i].size()+1);
+                    double dx = c2->floatProperty("x") - c1->floatProperty("x");
+                    double dy = c2->floatProperty("y") - c1->floatProperty("y");
+                    double length = sqrt(dx*dx+dy*dy);
+                    double delta_x = -dy/length;
+                    double delta_y = dx/length;
+                    c1->setFloatProperty("x", c1->floatProperty("x") + resize_x * delta_x * 0.5);
+                    c1->setFloatProperty("y", c1->floatProperty("y") + resize_y * delta_y * 0.5);
+                    c2->setFloatProperty("x", c2->floatProperty("x") + resize_x * delta_x * 0.5);
+                    c2->setFloatProperty("y", c2->floatProperty("y") + resize_y * delta_y * 0.5);
                 }
             } else {
                 context_.addEditorMessage(S_FMT("Simple scaling applied."));
