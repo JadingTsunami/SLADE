@@ -693,7 +693,7 @@ void Edit2D::paste_rotate(double angle)
                 vertex->setFloatProperty("y", new_pos.y);
             }
 
-            context_.addEditorMessage(S_FMT("Rotated pasted map architecture by %lf", angle));
+            context_.addEditorMessage(S_FMT("Rotated pasted map architecture by %g", angle));
 		}
 		// Things
 		else if (theClipboard->getItem(a)->getType() == CLIPBOARD_MAP_THINGS)
