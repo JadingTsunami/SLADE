@@ -1064,6 +1064,12 @@ void Input::handleKeyBind2d(const string& name)
 					});
 				}
 			}
+
+			// Curve selected lines
+			else if (name == "me2d_line_curve")
+            {
+				context_.edit2D().curveLines();
+            }
 		}
 
 

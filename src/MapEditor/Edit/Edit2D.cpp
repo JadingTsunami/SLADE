@@ -725,16 +725,15 @@ void Edit2D::paste_resize(double resize_x, double resize_y)
 
             vector<MapLine*> lines;
             clip->getLines(lines);
-
+            
             if (!lines.empty()) {
-                context_.addEditorMessage(S_FMT("Polygonal scaling applied."));
+                context_.addEditorMessage(S_FMT("Polygonal line scaling applied."));
                 for (auto& line : lines) {
                     /* circuit (polygonal) scaling */
                     /* walk through each identified circuit and scale its vertices accordingly */
                     /* fixup first/last */
                     MapVertex* c1 = line->vertex1;
                     MapVertex* c2 = line->vertex2;
-                    int j = 1;
                     double dx = c2->floatProperty("x") - c1->floatProperty("x");
                     double dy = c2->floatProperty("y") - c1->floatProperty("y");
                     double length = sqrt(dx*dx+dy*dy);
@@ -1409,4 +1408,55 @@ void Edit2D::makeDoor() const
 }
 
 
+/* Edit2D::curveLine
+ * Curve a linedef
+ *******************************************************************/
+void Edit2D::curveLines() const
+{
+	// Do nothing if not in lines mode
+	if (context_.editMode() != MapEditor::Mode::Lines) {
+        context_.addEditorMessage("Curve Linedef only works in Linedef edit mode.");
+		return;
+    }
 
+	// Begin record undo level
+	context_.beginUndoRecord("Curve linedef", true, true, true);
+
+    auto sel = context_.selection().selectedLines();
+    for (auto line : sel)
+    {
+        /* calculate line midpoint */
+        double x1 = line->x2();
+        double x2 = line->x1();
+        double y1 = line->y2();
+        double y2 = line->y1();
+        fpoint2_t center(x1 + ((x2 - x1) * 0.5), y1 + ((y2 - y1) * 0.5));
+
+        double angle1 = atan2(y1 - center.y, x1 - center.x);
+        double angle2 = atan2(y2 - center.y, x2 - center.x);
+
+        angle1 += angle1 < 0 ? 2*PI : 0;
+        angle2 += angle2 < 0 ? 2*PI : 0;
+
+        /* FIXME: Allow user-input segments and radius */
+        int segments = 7;
+        double radius = line->getLength() / 2;
+
+        double arc_angle = angle1 - angle2;
+        if (arc_angle < 0) {
+            arc_angle += 2*PI;
+        }
+
+        double segment_angle = -arc_angle / segments;
+        for (int i = 1; i < segments; i++) {
+            double a = angle1 + segment_angle * i;
+            fpoint2_t v(center.x + cos(a)*radius, center.y + sin(a)*radius);
+            auto vertex = context_.map().createVertex(v.x, v.y);
+            context_.map().splitLine(line, vertex);
+        }
+    }
+
+	// End record undo level
+	context_.endUndoRecord();
+
+}

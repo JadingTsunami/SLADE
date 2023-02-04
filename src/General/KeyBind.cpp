@@ -611,6 +611,7 @@ void KeyBind::initBinds()
 	addBind("me2d_line_change_texture", keypress_t("T", KPM_CTRL), "Change texture(s)", group);
 	addBind("me2d_line_flip", keypress_t("F"), "Flip line(s)", group);
 	addBind("me2d_line_flip_nosides", keypress_t("F", KPM_SHIFT), "Flip line(s) but not sides", group);
+	addBind("me2d_line_curve", keypress_t("C", KPM_SHIFT), "Curve line(s)", group);
 	addBind("me2d_line_tag_edit", keypress_t("T", KPM_SHIFT), "Begin tag edit", group);
 	addBind("me2d_line_change_special", keypress_t("T", KPM_CTRL|KPM_SHIFT), "Change line(s) special", group);
 
