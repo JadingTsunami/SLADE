@@ -20,7 +20,8 @@ public:
 	// Lines
 	void	splitLine(double x, double y, double min_dist = 64) const;
 	void	flipLines(bool sides = true) const;
-    void    curveLines() const;
+    void    curveLines(bool concave = false) const;
+    void    bevelLines() const;
 	void	correctLineSectors() const;
 
 	// Sectors

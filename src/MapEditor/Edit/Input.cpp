@@ -1070,6 +1070,16 @@ void Input::handleKeyBind2d(const string& name)
             {
 				context_.edit2D().curveLines();
             }
+			// Curve selected lines, inverted
+			else if (name == "me2d_line_curve_concave")
+            {
+				context_.edit2D().curveLines(true);
+            }
+			// bevel selected lines
+			else if (name == "me2d_line_bevel")
+            {
+				context_.edit2D().bevelLines();
+            }
 		}
 
 

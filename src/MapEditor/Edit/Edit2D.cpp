@@ -1411,7 +1411,7 @@ void Edit2D::makeDoor() const
 /* Edit2D::curveLine
  * Curve a linedef
  *******************************************************************/
-void Edit2D::curveLines() const
+void Edit2D::curveLines(bool concave) const
 {
 	// Do nothing if not in lines mode
 	if (context_.editMode() != MapEditor::Mode::Lines) {
@@ -1426,10 +1426,10 @@ void Edit2D::curveLines() const
     for (auto line : sel)
     {
         /* calculate line midpoint */
-        double x1 = line->x2();
-        double x2 = line->x1();
-        double y1 = line->y2();
-        double y2 = line->y1();
+        double x1 = concave ? line->x1() : line->x2();
+        double x2 = concave ? line->x2() : line->x1();
+        double y1 = concave ? line->y1() : line->y2();
+        double y2 = concave ? line->y2() : line->y1();
         fpoint2_t center(x1 + ((x2 - x1) * 0.5), y1 + ((y2 - y1) * 0.5));
 
         double angle1 = atan2(y1 - center.y, x1 - center.x);
@@ -1439,8 +1439,8 @@ void Edit2D::curveLines() const
         angle2 += angle2 < 0 ? 2*PI : 0;
 
         /* FIXME: Allow user-input segments and radius */
-        int segments = 7;
         double radius = line->getLength() / 2;
+        int segments = MAX(7,(radius)/8);
 
         double arc_angle = angle1 - angle2;
         if (arc_angle < 0) {
@@ -1449,7 +1449,7 @@ void Edit2D::curveLines() const
 
         double segment_angle = -arc_angle / segments;
         for (int i = 1; i < segments; i++) {
-            double a = angle1 + segment_angle * i;
+            double a = angle1 + segment_angle * (concave ? segments - i : i);
             fpoint2_t v(center.x + cos(a)*radius, center.y + sin(a)*radius);
             auto vertex = context_.map().createVertex(v.x, v.y);
             context_.map().splitLine(line, vertex);
@@ -1459,4 +1459,120 @@ void Edit2D::curveLines() const
 	// End record undo level
 	context_.endUndoRecord();
 
+}
+
+/* Edit2D::bevelLines
+ * Apply a beveled edge to 2 linedefs
+ *******************************************************************/
+void Edit2D::bevelLines() const
+{
+	// Do nothing if not in lines mode
+	if (context_.editMode() != MapEditor::Mode::Lines) {
+        context_.addEditorMessage("Bevel Linedef only works in Linedef edit mode.");
+		return;
+    }
+
+    auto sel = context_.selection().selectedLines();
+
+	// Can only bevel 2 lines
+	if (sel.size() != 2) {
+        context_.addEditorMessage("Exactly 2 linedefs must be selected for bevel mode.");
+		return;
+    }
+
+    // Beveled edges must share a start and end point
+    MapLine* l0 = nullptr;
+    MapLine* l1 = nullptr;
+
+    if (sel[0]->point2() == sel[1]->point1()) {
+        l0 = sel[0];
+        l1 = sel[1];
+    } else if (sel[0]->point1() == sel[1]->point2()) {
+        l0 = sel[1];
+        l1 = sel[0];
+    }
+
+    if (!l0 || !l1) {
+        context_.addEditorMessage("Beveled linedefs must point in the same direction and share a vertex.");
+		return;
+    }
+
+    /* adapted from:
+     * https://stackoverflow.com/questions/44855794/html5-canvas-triangle-with-rounded-corners/44856925#44856925
+     */
+
+    fpoint2_t origin = l0->point2();
+    fpoint2_t p1 = l0->point1();
+    fpoint2_t p2 = l1->point2();
+    fpoint2_t v1 = p1 - origin;
+    fpoint2_t v2 = p2 - origin;
+    fpoint2_t v1n = v1.normalized();
+    fpoint2_t v2n = v2.normalized();
+
+    double v1len = sqrt(v1.x * v1.x + v1.y * v1.y);
+    double v2len = sqrt(v2.x * v2.x + v2.y * v2.y);
+    double v1ang = atan2(v1n.y, v1n.x);
+    double v2ang = atan2(v2n.y, v2n.x);
+
+    double radius = min(l0->getLength(),l1->getLength());
+    double sinA = v1n.x * v2n.y - v1n.y * v2n.x;
+    double sinA90 = v1n.x *v2n.x - v1n.y * (-v2n.y);
+    double angle = asin(MathStuff::clamp(sinA,-1,1));
+    int direction = 1;
+
+    if (sinA90 < 0) {
+        if (angle < 0) {
+            angle += PI;
+        } else {
+            angle = PI - angle;
+            direction = -1;
+        }
+    } else if (angle > 0) {
+        direction = -1;
+    }
+
+    double lenOut = fabs(cos(angle/2)*radius/sin(angle/2));
+
+    fpoint2_t center;
+    double angle1, angle2;
+
+    center.x = origin.x + v2n.x * lenOut;
+    center.y = origin.y + v2n.y * lenOut;
+
+    center.x += -v2n.y * radius * direction;
+    center.y += v2n.x * radius * direction;
+
+    if (direction < 0) {
+        angle1 = v1ang - PI / 2;
+        angle2 = v2ang + PI / 2;
+    } else {
+        angle1 = v2ang - PI / 2;
+        angle2 = v1ang + PI / 2;
+    }
+
+    /* TODO: Segment count could be configurable */
+    int segments = MAX(3,(radius)/10);
+    double bevel_angle = angle1 - angle2;
+    if (bevel_angle < 0) {
+        bevel_angle += 2*PI;
+    }
+
+    // Begin record undo level
+    context_.beginUndoRecord("Bevel linedefs", true, true, true);
+
+    double segment_angle = -bevel_angle / segments;
+    for (int i = 1; i < segments; i++) {
+        double a = angle1 + segment_angle * (direction < 0 ? segments - i : i);
+        fpoint2_t v(center.x + cos(a)*radius, center.y + sin(a)*radius);
+        auto vertex = context_.map().createVertex(v.x, v.y);
+        context_.map().splitLine((direction < 0 ? l1 : l0), vertex);
+    }
+    /* move endpoint vertex to new position */
+    context_.map().moveVertex(
+            (direction < 0 ? l0->v2Index() : l1->v1Index()),
+            center.x + cos(angle1)*radius,
+            center.y + sin(angle1)*radius);
+
+	// End record undo level
+	context_.endUndoRecord();
 }
