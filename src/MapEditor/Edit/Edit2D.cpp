@@ -1474,104 +1474,119 @@ void Edit2D::bevelLines() const
 
     auto sel = context_.selection().selectedLines();
 
-	// Can only bevel 2 lines
-	if (sel.size() != 2) {
-        context_.addEditorMessage("Exactly 2 linedefs must be selected for bevel mode.");
+	if (sel.size() < 2) {
+        context_.addEditorMessage("At least 2 linedefs must be selected for bevel mode.");
 		return;
     }
 
-    // Beveled edges must share a start and end point
-    MapLine* l0 = nullptr;
-    MapLine* l1 = nullptr;
-
-    if (sel[0]->point2() == sel[1]->point1()) {
-        l0 = sel[0];
-        l1 = sel[1];
-    } else if (sel[0]->point1() == sel[1]->point2()) {
-        l0 = sel[1];
-        l1 = sel[0];
-    }
-
-    if (!l0 || !l1) {
-        context_.addEditorMessage("Beveled linedefs must point in the same direction and share a vertex.");
-		return;
-    }
-
-    /* adapted from:
-     * https://stackoverflow.com/questions/44855794/html5-canvas-triangle-with-rounded-corners/44856925#44856925
-     */
-
-    fpoint2_t origin = l0->point2();
-    fpoint2_t p1 = l0->point1();
-    fpoint2_t p2 = l1->point2();
-    fpoint2_t v1 = p1 - origin;
-    fpoint2_t v2 = p2 - origin;
-    fpoint2_t v1n = v1.normalized();
-    fpoint2_t v2n = v2.normalized();
-
-    double v1len = sqrt(v1.x * v1.x + v1.y * v1.y);
-    double v2len = sqrt(v2.x * v2.x + v2.y * v2.y);
-    double v1ang = atan2(v1n.y, v1n.x);
-    double v2ang = atan2(v2n.y, v2n.x);
-
-    double radius = min(l0->getLength(),l1->getLength());
-    double sinA = v1n.x * v2n.y - v1n.y * v2n.x;
-    double sinA90 = v1n.x *v2n.x - v1n.y * (-v2n.y);
-    double angle = asin(MathStuff::clamp(sinA,-1,1));
-    int direction = 1;
-
-    if (sinA90 < 0) {
-        if (angle < 0) {
-            angle += PI;
-        } else {
-            angle = PI - angle;
-            direction = -1;
+    int pairs = 0;
+    for (int i = 1; i < sel.size(); i++) {
+        if ((sel[i-1]->point2() == sel[i]->point1())
+                ||
+           (sel[i-1]->point1() == sel[i]->point2())) {
+            pairs++;
         }
-    } else if (angle > 0) {
-        direction = -1;
+
     }
 
-    double lenOut = fabs(cos(angle/2)*radius/sin(angle/2));
-
-    fpoint2_t center;
-    double angle1, angle2;
-
-    center.x = origin.x + v2n.x * lenOut;
-    center.y = origin.y + v2n.y * lenOut;
-
-    center.x += -v2n.y * radius * direction;
-    center.y += v2n.x * radius * direction;
-
-    if (direction < 0) {
-        angle1 = v1ang - PI / 2;
-        angle2 = v2ang + PI / 2;
-    } else {
-        angle1 = v2ang - PI / 2;
-        angle2 = v1ang + PI / 2;
-    }
-
-    /* TODO: Segment count could be configurable */
-    int segments = MAX(3,(radius)/10);
-    double bevel_angle = angle1 - angle2;
-    if (bevel_angle < 0) {
-        bevel_angle += 2*PI;
+    if (pairs < sel.size()/2) {
+        context_.addEditorMessage("Beveled linedefs must be selected in pairs and share a vertex.");
+		return;
     }
 
     // Begin record undo level
     context_.beginUndoRecord("Bevel linedefs", true, true, true);
 
-    double segment_angle = -bevel_angle / segments;
-    for (int i = 1; i < segments; i++) {
-        double a = angle1 + segment_angle * (direction < 0 ? segments - i : i);
-        fpoint2_t v(center.x + cos(a)*radius, center.y + sin(a)*radius);
-        auto vertex = context_.map().createVertex(v.x, v.y);
-        context_.map().splitLine((direction < 0 ? l1 : l0), vertex);
+    for (int i = 1; i < sel.size(); i++) {
+        // Beveled edges must share a start and end point
+        MapLine* l0 = nullptr;
+        MapLine* l1 = nullptr;
+
+        if (sel[i-1]->point2() == sel[i]->point1()) {
+            l0 = sel[i-1];
+            l1 = sel[i];
+        } else if (sel[i-1]->point1() == sel[i]->point2()) {
+            l0 = sel[i];
+            l1 = sel[i-1];
+        } else {
+            // not a pair, skip ahead
+            continue;
+        }
+
+        /* adapted from:
+         * https://stackoverflow.com/questions/44855794/html5-canvas-triangle-with-rounded-corners/44856925#44856925
+         */
+
+        fpoint2_t origin = l0->point2();
+        fpoint2_t p1 = l0->point1();
+        fpoint2_t p2 = l1->point2();
+        fpoint2_t v1 = p1 - origin;
+        fpoint2_t v2 = p2 - origin;
+        fpoint2_t v1n = v1.normalized();
+        fpoint2_t v2n = v2.normalized();
+
+        double v1len = sqrt(v1.x * v1.x + v1.y * v1.y);
+        double v2len = sqrt(v2.x * v2.x + v2.y * v2.y);
+        double v1ang = atan2(v1n.y, v1n.x);
+        double v2ang = atan2(v2n.y, v2n.x);
+
+        double radius = min(l0->getLength(),l1->getLength());
+        double sinA = v1n.x * v2n.y - v1n.y * v2n.x;
+        double sinA90 = v1n.x *v2n.x - v1n.y * (-v2n.y);
+        double angle = asin(MathStuff::clamp(sinA,-1,1));
+        int direction = 1;
+
+        if (sinA90 < 0) {
+            if (angle < 0) {
+                angle += PI;
+            } else {
+                angle = PI - angle;
+                direction = -1;
+            }
+        } else if (angle > 0) {
+            direction = -1;
+        }
+
+        double lenOut = fabs(cos(angle/2)*radius/sin(angle/2));
+
+        fpoint2_t center;
+        double angle1, angle2;
+
+        center.x = origin.x + v2n.x * lenOut;
+        center.y = origin.y + v2n.y * lenOut;
+
+        center.x += -v2n.y * radius * direction;
+        center.y += v2n.x * radius * direction;
+
+        if (direction < 0) {
+            angle1 = v1ang - PI / 2;
+            angle2 = v2ang + PI / 2;
+        } else {
+            angle1 = v2ang - PI / 2;
+            angle2 = v1ang + PI / 2;
+        }
+
+        /* TODO: Segment count could be configurable */
+        int segments = MAX(3,(radius)/10);
+        double bevel_angle = angle1 - angle2;
+        if (bevel_angle < 0) {
+            bevel_angle += 2*PI;
+        }
+
+
+        double segment_angle = -bevel_angle / segments;
+        for (int i = 1; i < segments; i++) {
+            double a = angle1 + segment_angle * (direction < 0 ? segments - i : i);
+            fpoint2_t v(center.x + cos(a)*radius, center.y + sin(a)*radius);
+            auto vertex = context_.map().createVertex(v.x, v.y);
+            context_.map().splitLine((direction < 0 ? l1 : l0), vertex);
+        }
+        /* move endpoint vertex to new position */
+        context_.map().moveVertex(
+                (direction < 0 ? l0->v2Index() : l1->v1Index()),
+                center.x + cos(angle1)*radius,
+                center.y + sin(angle1)*radius);
     }
-    /* move endpoint vertex to new position */
-    context_.map().moveVertex(
-            (direction < 0 ? l0->v2Index() : l1->v1Index()),
-            center.x + cos(angle1)*radius,
-            center.y + sin(angle1)*radius);
 
 	// End record undo level
 	context_.endUndoRecord();
