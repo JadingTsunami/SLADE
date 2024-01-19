@@ -32,3 +32,4 @@ A fork of slade where I keep my own personal QoL enhancement features, mostly fo
 * Start a sector property panel change with "F"/"C" for an expression starting from the floor/ceiling height, respectively. (Example: Setting a sector's ceiling height to "F+192" will calculate the ceiling height as 192 units above the sector floor height. Can be applied to multiple sectors at once.)
 * Curve linedef operation with keybind.
 * Bevel linedefs operation with keybind.
+* 2D Mode: Alt-click to "smart select" lines connected to the current line. "Smart select" matches if 1S lines have matching midtextures, or if all textures match 2S lines.

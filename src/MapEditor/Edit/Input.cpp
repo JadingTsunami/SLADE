@@ -312,6 +312,65 @@ bool Input::mouseDown(MouseButton button, bool double_click)
                 if (context_.selection().hasHilightOrSelection())
                     mouse_drag_ = DragType::Move;
             }
+            else if (alt_down_)
+            {
+                // smart select adjacent
+				if (context_.hilightItem().index != -1 &&
+                        context_.hilightItem().type == MapEditor::ItemType::Line) {
+                    vector<MapEditor::Item> list;
+                    vector<MapVertex*> search_vertices;
+                    std::set<MapLine*> search_lines;
+
+                    auto prototype_line = context_.map().getLine(context_.hilightItem().index);
+                    bool onesided = !prototype_line->backSector();
+
+                    /* select all connected lines */
+                    search_vertices.push_back(prototype_line->v1());
+                    search_vertices.push_back(prototype_line->v2());
+                    while (!search_vertices.empty()) {
+                        auto v = search_vertices.back();
+                        search_vertices.pop_back();
+                        for (unsigned l = 0; l < v->nConnectedLines(); l++) {
+                            MapLine* search_line = v->connectedLine(l);
+                            if (search_lines.find(search_line) == search_lines.end()) {
+                                search_lines.insert(search_line);
+                                search_vertices.push_back(search_line->v1());
+                                search_vertices.push_back(search_line->v2());
+                            }
+                        }
+                    }
+
+                    /* 1S and midtex is same
+                     * OR
+                     * 2S and all textures match (both sides)
+                     */
+                    for (auto& map_line : search_lines) {
+                        if ((map_line->backSector() && !onesided &&
+                                map_line->stringProperty("side1.texturetop") == prototype_line->stringProperty("side1.texturetop") &&
+                                map_line->stringProperty("side1.texturemiddle") == prototype_line->stringProperty("side1.texturemiddle") &&
+                                map_line->stringProperty("side1.texturebottom") == prototype_line->stringProperty("side1.texturebottom") &&
+                                map_line->stringProperty("side2.texturetop") == prototype_line->stringProperty("side2.texturetop") &&
+                                map_line->stringProperty("side2.texturemiddle") == prototype_line->stringProperty("side2.texturemiddle") &&
+                                map_line->stringProperty("side2.texturebottom") == prototype_line->stringProperty("side2.texturebottom")
+                           ) ||
+                                (!map_line->backSector() && onesided &&
+                                 map_line->stringProperty("side1.texturemiddle") == prototype_line->stringProperty("side1.texturemiddle")
+                                )
+                           ) {
+                            list.push_back({(int)map_line->getIndex(), ItemType::Line});
+                        }
+                    }
+
+                    if (!list.empty()) {
+                        context_.selection().select(list);
+                        context_.selectionUpdated();
+                    } else {
+                        context_.addEditorMessage("No connected lines matched for smart select.");
+                    }
+                } else {
+                    context_.addEditorMessage("Nothing highlighted for smart select.");
+                }
+            }
 			else
 			{
 				if (!context_.selection().toggleCurrent(selection_clear_click))
