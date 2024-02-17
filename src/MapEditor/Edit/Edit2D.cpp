@@ -722,11 +722,68 @@ void Edit2D::paste_resize(double resize_x, double resize_y)
 		{
 			auto clip = (MapArchClipboardItem*)theClipboard->getItem(a);
             vector<MapVertex*> v = clip->vertices;
+            vector<MapVertex*> finished;
+            typedef struct {
+                MapVertex* vertex;
+                double newX;
+                double newY;
+            } vertex_remap;
+            vector<vertex_remap> remaps;
 
             vector<MapLine*> lines;
             clip->getLines(lines);
-            
+
             if (!lines.empty()) {
+                context_.addEditorMessage(S_FMT("Vector scaling applied."));
+                /* Adapted from: https://stackoverflow.com/questions/54033808/how-to-offset-polygon-edges */
+                double vnX, vnY, vpX, vpY;
+                double nnnX, nnnY;
+                double npnX, npnY;
+                double bisX, bisY;
+                for (MapLine* line : lines) {
+                    /* find the partner line */
+                    MapVertex* curr = line->vertex2;
+                    MapVertex* prev = line->vertex1;
+                    MapVertex* next = NULL;
+                    for (MapLine* candidate : lines) {
+                        if (candidate->vertex1 == curr) {
+                            next = candidate->vertex2;
+                            break;
+                        }
+                    }
+
+                    if (!next) continue;
+
+                    vnX = next->floatProperty("x") - curr->floatProperty("x");
+                    vnY = next->floatProperty("y") - curr->floatProperty("y");
+                    fpoint2_t vnn(vnX, vnY);
+                    vnn.normalize();
+                    nnnX = vnn.y;
+                    nnnY = -vnn.x;
+
+                    vpX = curr->floatProperty("x") - prev->floatProperty("x");
+                    vpY = curr->floatProperty("y") - prev->floatProperty("y");
+                    fpoint2_t vpn(vpX, vpY);
+                    vpn.normalize();
+                    npnX = vpn.y;
+                    npnY = -vpn.x;
+
+                    bisX = (nnnX + npnX);
+                    bisY = (nnnY + npnY);
+
+                    fpoint2_t bisn(bisX,bisY);
+                    bisn.normalize();
+
+                    remaps.push_back({curr, curr->floatProperty("x") - resize_x * bisn.x, curr->floatProperty("y") - resize_y * bisn.y });
+                }
+
+                for (vertex_remap r : remaps) {
+                    MapVertex* c = r.vertex;
+                    c->setFloatProperty("x", r.newX);
+                    c->setFloatProperty("y", r.newY);
+                }
+
+            } else if (false) {
                 context_.addEditorMessage(S_FMT("Polygonal line scaling applied."));
                 for (auto& line : lines) {
                     /* circuit (polygonal) scaling */
