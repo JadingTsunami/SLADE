@@ -43,6 +43,7 @@
  *******************************************************************/
 CVAR(Bool, map_merge_lines_on_delete_vertex, false, CVAR_SAVE)
 CVAR(Bool, map_remove_invalid_lines, false, CVAR_SAVE)
+CVAR(Int, bevel_segment_divisor, 7, CVAR_SAVE)
 
 
 /*******************************************************************
@@ -1623,8 +1624,7 @@ void Edit2D::bevelLines() const
             angle2 = v1ang + PI / 2;
         }
 
-        /* TODO: Segment count could be configurable */
-        int segments = MAX(3,(radius)/10);
+        int segments = MAX(3,(radius)/MAX(3,bevel_segment_divisor));
         double bevel_angle = angle1 - angle2;
         if (bevel_angle < 0) {
             bevel_angle += 2*PI;
