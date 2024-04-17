@@ -831,6 +831,14 @@ void Input::handleKeyBind2d(const string& name)
         {
 			context_.edit2D().paste_resize(-context_.gridSize(), -context_.gridSize());
         }
+		else if (name == "me2d_mirror_x")
+        {
+			context_.edit2D().mirror_paste(true);
+        }
+		else if (name == "me2d_mirror_y")
+        {
+			context_.edit2D().mirror_paste(false);
+        }
 
 		// Cancel paste
 		else if (name == "map_edit_cancel")

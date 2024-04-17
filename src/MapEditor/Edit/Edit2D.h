@@ -15,6 +15,7 @@ public:
 
 	// General Editing
 	void	mirror(bool x_axis) const;
+	void	mirror_paste(bool x_axis) const;
 	void 	editObjectProperties();
 
 	// Lines

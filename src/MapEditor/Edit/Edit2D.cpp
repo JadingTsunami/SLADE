@@ -181,6 +181,86 @@ void Edit2D::mirror(bool x_axis) const
 	}
 }
 
+void Edit2D::mirror_paste(bool x_axis) const
+{
+    using MapEditor::Mode;
+    bbox_t bbox;
+
+    // Get paste content to mirror
+    vector<MapThing*> things;
+    vector<MapVertex*> vertices;
+    vector<MapLine*> lines;
+
+    // Go through clipboard items
+    for (unsigned a = 0; a < theClipboard->nItems(); a++)
+    {
+        if (theClipboard->getItem(a)->getType() == CLIPBOARD_MAP_ARCH)
+        {
+            auto clip = (MapArchClipboardItem*)theClipboard->getItem(a);
+            vector<MapVertex*> v = clip->vertices;
+            for (unsigned a = 0; a < v.size(); a++)
+                VECTOR_ADD_UNIQUE(vertices, v[a]);
+            clip->getLines(lines);
+        }
+        // Things
+        else if (theClipboard->getItem(a)->getType() == CLIPBOARD_MAP_THINGS)
+        {
+            auto clip = (MapThingsClipboardItem*)theClipboard->getItem(a);
+            clip->getThings(things);
+        }
+    }
+
+    for (unsigned a = 0; a < things.size(); a++)
+        bbox.extend(things[a]->xPos(), things[a]->yPos());
+
+    // Mirror
+    for (unsigned a = 0; a < things.size(); a++)
+    {
+        // Position
+        if (x_axis) {
+            things[a]->setFloatProperty("x", bbox.mid_x() - (things[a]->xPos() - bbox.mid_x()));
+        } else {
+            things[a]->setFloatProperty("y", bbox.mid_y() - (things[a]->yPos() - bbox.mid_y()));
+        }
+
+        // Direction
+        int angle = things[a]->getAngle();
+        if (x_axis)
+        {
+            angle += 90;
+            angle = 360 - angle;
+            angle -= 90;
+        }
+        else
+            angle = 360 - angle;
+        while (angle < 0)
+            angle += 360;
+        things[a]->setIntProperty("angle", angle);
+    }
+
+
+    for (unsigned a = 0; a < vertices.size(); a++)
+        bbox.extend(vertices[a]->xPos(), vertices[a]->yPos());
+
+    // Mirror vertices
+    for (unsigned a = 0; a < vertices.size(); a++)
+    {
+        // Position
+        if (x_axis)
+        {
+            vertices[a]->setFloatProperty("x", bbox.mid_x() - (vertices[a]->xPos() - bbox.mid_x()));
+        }
+        else
+        {
+            vertices[a]->setFloatProperty("y", bbox.mid_y() - (vertices[a]->yPos() - bbox.mid_y()));
+        }
+    }
+
+    // Flip lines (just swap vertices)
+    for (unsigned a = 0; a < lines.size(); a++)
+        lines[a]->flip(false);
+}
+
 /* Edit2D::editObjectProperties
  * Opens a dialog containing a MapObjectPropsPanel to edit properties
  * for all selected (or hilighted) objects
