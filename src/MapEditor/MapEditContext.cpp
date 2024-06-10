@@ -162,7 +162,7 @@ void MapEditContext::setEditMode(Mode mode)
 
 	// Set edit mode
 	edit_mode_ = mode;
-	sector_mode_ = SectorMode::Both;
+    //sector_mode_ = SectorMode::Both;
 
 	// Clear hilight and selection stuff
 	selection_.clearHilight();
@@ -179,7 +179,7 @@ void MapEditContext::setEditMode(Mode mode)
 	{
 	case Mode::Vertices: addEditorMessage("Vertices mode"); break;
 	case Mode::Lines:	addEditorMessage("Lines mode"); break;
-	case Mode::Sectors:	addEditorMessage("Sectors mode (Normal)"); break;
+	case Mode::Sectors:	addEditorMessage("Sectors mode"); break;
 	case Mode::Things:	addEditorMessage("Things mode"); break;
 	case Mode::Visual:		addEditorMessage("3d mode"); break;
 	default: break;

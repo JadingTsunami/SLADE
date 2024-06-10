@@ -34,3 +34,4 @@ A fork of slade where I keep my own personal QoL enhancement features, mostly fo
 * Bevel linedefs operation with keybind.
 * 2D Mode: Alt-click to "smart select" lines connected to the current line. "Smart select" matches if 1S lines have matching midtextures, or if all textures match 2S lines.
 * Mirror keybind can mirror pasted objects (not just selected items).
+* (bug fix?) Don't drop sector mode when changing edit modes

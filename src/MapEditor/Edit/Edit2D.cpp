@@ -1710,7 +1710,6 @@ void Edit2D::bevelLines() const
             bevel_angle += 2*PI;
         }
 
-
         double segment_angle = -bevel_angle / segments;
         for (int i = 1; i < segments; i++) {
             double a = angle1 + segment_angle * (direction < 0 ? segments - i : i);
@@ -1719,10 +1718,7 @@ void Edit2D::bevelLines() const
             context_.map().splitLine((direction < 0 ? l1 : l0), vertex);
         }
         /* move endpoint vertex to new position */
-        context_.map().moveVertex(
-                (direction < 0 ? l0->v2Index() : l1->v1Index()),
-                center.x + cos(angle1)*radius,
-                center.y + sin(angle1)*radius);
+		context_.map().removeVertex((direction < 0 ? l0->v2Index() : l1->v1Index()), true);
     }
 
 	// End record undo level

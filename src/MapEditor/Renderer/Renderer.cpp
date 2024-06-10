@@ -1005,13 +1005,10 @@ void Renderer::drawMap2d()
 
 		// Adjust flat type depending on sector mode
 		int drawtype = 0;
-		if (context_.editMode() == Mode::Sectors)
-		{
-			if (context_.sectorEditMode() == SectorMode::Floor)
-				drawtype = 1;
-			else if (context_.sectorEditMode() == SectorMode::Ceiling)
-				drawtype = 2;
-		}
+        if (context_.sectorEditMode() == SectorMode::Floor)
+            drawtype = 1;
+        else if (context_.sectorEditMode() == SectorMode::Ceiling)
+            drawtype = 2;
 
 		renderer_2d_.renderFlats(drawtype, texture, fade_flats_);
 	}
