@@ -1656,6 +1656,7 @@ void Edit2D::bevelLines() const
          */
 
         fpoint2_t origin = l0->point2();
+        MapVertex* fixup = l0->v2();
         fpoint2_t p1 = l0->point1();
         fpoint2_t p2 = l1->point2();
         fpoint2_t v1 = p1 - origin;
@@ -1710,15 +1711,28 @@ void Edit2D::bevelLines() const
             bevel_angle += 2*PI;
         }
 
+        vector<MapVertex*> verts;
+        verts.push_back(l0->v1());
+        verts.push_back(l1->v2());
         double segment_angle = -bevel_angle / segments;
         for (int i = 1; i < segments; i++) {
             double a = angle1 + segment_angle * (direction < 0 ? segments - i : i);
             fpoint2_t v(center.x + cos(a)*radius, center.y + sin(a)*radius);
             auto vertex = context_.map().createVertex(v.x, v.y);
             context_.map().splitLine((direction < 0 ? l1 : l0), vertex);
+            verts.push_back(vertex);
         }
-        /* move endpoint vertex to new position */
-		context_.map().removeVertex((direction < 0 ? l0->v2Index() : l1->v1Index()), true);
+        /* it would be faster to sort vs. nested loop */
+        /* remove any overlapping verts */
+        for (int i = 0; i < verts.size(); i++) {
+            for (int j = i+1; j < verts.size(); j++) {
+                if (verts[i]->point() == verts[j]->point()) {
+                    context_.map().removeVertex(verts[i], true);
+                    break;
+                }
+            }
+        }
+        context_.map().removeVertex(fixup, true);
     }
 
 	// End record undo level
