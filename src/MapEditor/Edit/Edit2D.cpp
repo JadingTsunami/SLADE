@@ -44,6 +44,7 @@
 CVAR(Bool, map_merge_lines_on_delete_vertex, false, CVAR_SAVE)
 CVAR(Bool, map_remove_invalid_lines, false, CVAR_SAVE)
 CVAR(Int, bevel_segment_divisor, 7, CVAR_SAVE)
+CVAR(Int, bevel_segment_max, 12, CVAR_SAVE)
 
 
 /*******************************************************************
@@ -1705,7 +1706,7 @@ void Edit2D::bevelLines() const
             angle2 = v1ang + PI / 2;
         }
 
-        int segments = MAX(3,(radius)/MAX(3,bevel_segment_divisor));
+        int segments = MIN(bevel_segment_max, MAX(3,(radius)/MAX(3,bevel_segment_divisor)));
         double bevel_angle = angle1 - angle2;
         if (bevel_angle < 0) {
             bevel_angle += 2*PI;
@@ -1724,16 +1725,61 @@ void Edit2D::bevelLines() const
         }
         /* it would be faster to sort vs. nested loop */
         /* remove any overlapping verts */
+        bool cleanedUp = false;
         for (int i = 0; i < verts.size(); i++) {
             for (int j = i+1; j < verts.size(); j++) {
                 if (verts[i]->point() == verts[j]->point()) {
                     context_.map().removeVertex(verts[i], true);
+                    cleanedUp = true;
                     break;
                 }
             }
         }
-        context_.map().removeVertex(fixup, true);
+        if (!cleanedUp)
+            context_.map().removeVertex(fixup, true);
     }
+
+	// End record undo level
+	context_.endUndoRecord();
+}
+
+void Edit2D::copyFrontBackTexture() const
+{
+	// Do nothing if not in lines mode
+	if (context_.editMode() != MapEditor::Mode::Lines) {
+        context_.addEditorMessage("Copy front/back texture only works in Linedef edit mode.");
+		return;
+    }
+
+    auto sel = context_.selection().selectedLines();
+
+    context_.beginUndoRecord("Copy front back textures", true, true, true);
+
+    for (int i = 0; i < sel.size(); i++) {
+        MapLine* l = sel[i];
+		MapSide* s1 = l->s1();
+        MapSide* s2 = l->s2();
+
+        /* ignore lines that are one-sided */
+        if (!s1 || !s2)
+            continue;
+
+        /* ignore lines with no midtextures */
+        if (s1->getTexMiddle() == "-" && s2->getTexMiddle() == "-")
+            continue;
+
+        /* at this point:
+         * - line is 2-sided
+         * - at least 1 side has a texture
+         * prefer to inherit from side 1
+         */
+        if (s1->getTexMiddle() != "-")
+            s2->setStringProperty("texturemiddle", s1->getTexMiddle());
+        else
+            s1->setStringProperty("texturemiddle", s2->getTexMiddle());
+    }
+
+    context_.addEditorMessage("Copy front/back texture complete.");
 
 	// End record undo level
 	context_.endUndoRecord();

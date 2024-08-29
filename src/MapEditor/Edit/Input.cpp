@@ -1140,6 +1140,11 @@ void Input::handleKeyBind2d(const string& name)
             {
 				context_.edit2D().bevelLines();
             }
+			// copy front to back
+			else if (name == "me2d_line_front_back_texture_copy")
+            {
+				context_.edit2D().copyFrontBackTexture();
+            }
 		}
 
 

@@ -23,6 +23,7 @@ public:
 	void	flipLines(bool sides = true) const;
     void    curveLines(bool concave = false) const;
     void    bevelLines() const;
+    void    copyFrontBackTexture() const;
 	void	correctLineSectors() const;
 
 	// Sectors
