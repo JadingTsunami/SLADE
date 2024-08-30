@@ -1858,9 +1858,14 @@ void Edit3D::doAlignX(MapSide* side, int offset, string tex, vector<MapEditor::I
 				s->stringProperty("texturebottom") == tex)
 				doAlignX(s, offset + intlen, tex, walls_done, tex_width);
 		}
+    }
+
+	for (unsigned a = 0; a < vertex->nConnectedLines(); a++)
+	{
+		auto l = vertex->connectedLine(a);
 
 		// Second side
-		s = l->s2();
+		auto s = l->s2();
 		if (s)
 		{
 			// Check for matching texture

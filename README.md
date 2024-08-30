@@ -37,4 +37,4 @@ A fork of slade where I keep my own personal QoL enhancement features, mostly fo
 * (bug fix?) Don't drop sector mode when changing edit modes
 * Keybind to make the front/back midtextures of selected linedef(s) the same
     - Useful when making "decorative" 2D linedef arrangements
-
+* (bugfix) Fix auto-X alignment for 2S linedefs with the same front/back texture
