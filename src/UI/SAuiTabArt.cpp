@@ -294,7 +294,7 @@ void SAuiTabArt::DrawTab(wxDC& dc,
 		close_button_state,
 		x_extent);
 
-    bitmap = page.bitmap.GetBitmapFor(window);
+    bitmap = page.bitmap.GetBitmapFor(page.window);
 	// I know :P This stuff should probably be completely rewritten,
 	// but this will do for now
 	auto px2 = UI::scalePx(2);
@@ -438,9 +438,9 @@ void SAuiTabArt::DrawTab(wxDC& dc,
 	// draw close button if necessary
 	if (close_button_state != wxAUI_BUTTON_STATE_HIDDEN)
 	{
-		int close_button_width = m_activeCloseBmp.GetBitmapFor(window).GetWidth();
+		int close_button_width = m_activeCloseBmp.GetBitmapFor(page.window).GetWidth();
 
-		wxBitmap bmp = m_disabledCloseBmp.GetBitmapFor(window);
+		wxBitmap bmp = m_disabledCloseBmp.GetBitmapFor(page.window);
 
 		int offsetY = tab_y;
 		if (m_flags & wxAUI_NB_BOTTOM)
@@ -464,12 +464,12 @@ void SAuiTabArt::DrawTab(wxDC& dc,
 			dc.SetBrush(wxBrush(Drawing::lightColour(close_white ? bluetab_colour : bgcol, 1.0f)));
 			dc.DrawRectangle(rect.x, rect.y + 1, rect.width - 1, rect.width - px2);
 
-			bmp = close_white ? close_bitmap_white_ : m_activeCloseBmp.GetBitmapFor(window);
+			bmp = close_white ? close_bitmap_white_ : m_activeCloseBmp.GetBitmapFor(page.window);
 			dc.DrawBitmap(bmp, rect.x, rect.y, true);
 		}
 		else
 		{
-			bmp = close_white ? close_bitmap_white_ : m_disabledCloseBmp.GetBitmapFor(window);
+			bmp = close_white ? close_bitmap_white_ : m_disabledCloseBmp.GetBitmapFor(page.window);
 			dc.DrawBitmap(bmp, rect.x, rect.y, true);
 		}
 
@@ -482,7 +482,7 @@ void SAuiTabArt::DrawTab(wxDC& dc,
 }
 
 wxSize SAuiTabArt::GetTabSize(wxDC& dc,
-	wxWindow* WXUNUSED(wnd),
+	wxWindow* wnd,
 	const wxString& caption,
 	const wxBitmapBundle& bitmapBundle,
 	bool WXUNUSED(active),
@@ -491,7 +491,7 @@ wxSize SAuiTabArt::GetTabSize(wxDC& dc,
 {
 	wxCoord measured_textx, measured_texty, tmp;
 
-    wxBitmap bitmap = bitmapBundle.GetBitmapFor(window);
+    wxBitmap bitmap = bitmapBundle.GetBitmapFor(wnd);
 
 	dc.SetFont(m_measuringFont);
 	dc.GetTextExtent(caption, &measured_textx, &measured_texty);
@@ -504,7 +504,7 @@ wxSize SAuiTabArt::GetTabSize(wxDC& dc,
 
 	// if close buttons are enabled, add space for one
 	if (close_buttons_)
-		tab_width += m_activeCloseBmp.GetBitmapFor(window).GetWidth() + padding_;
+		tab_width += m_activeCloseBmp.GetBitmapFor(wnd).GetWidth() + padding_;
 
 	// if there's a bitmap, add space for it
 	if (bitmap.IsOk())
@@ -639,7 +639,7 @@ void SAuiDockArt::DrawCaption(wxDC& dc,
 
 void SAuiDockArt::DrawPaneButton(
 	wxDC& dc,
-	wxWindow *WXUNUSED(window),
+	wxWindow *window,
 	int button,
 	int button_state,
 	const wxRect& _rect,

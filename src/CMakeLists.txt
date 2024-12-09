@@ -80,7 +80,6 @@ file(GLOB_RECURSE SLADE_SOURCES
 	OpenGL/*.cpp
 	UI/*.cpp
 	Utility/*.cpp
-	Utility/*.c
 	Scripting/*.cpp
 	TextEditor/*.cpp
 	)
