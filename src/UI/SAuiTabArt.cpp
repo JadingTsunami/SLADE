@@ -164,18 +164,18 @@ SAuiTabArt::SAuiTabArt(bool close_buttons, bool main_tabs)
 	m_baseColourPen = wxPen(m_baseColour);
 	m_baseColourBrush = wxBrush(m_baseColour);
 
-	m_activeCloseBmp = bitmapFromBits(close_bits, 16, 16, wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT));
+	m_activeCloseBmp = wxBitmapBundle(bitmapFromBits(close_bits, 16, 16, wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT)));
 	close_bitmap_white_ = bitmapFromBits(close_bits, 16, 16, *wxWHITE);
-	m_disabledCloseBmp = bitmapFromBits(close_bits, 16, 16, wxColour(128, 128, 128));
+	m_disabledCloseBmp = wxBitmapBundle(bitmapFromBits(close_bits, 16, 16, wxColour(128, 128, 128)));
 
-	m_activeLeftBmp = bitmapFromBits(left_bits, 16, 16, *wxBLACK);
-	m_disabledLeftBmp = bitmapFromBits(left_bits, 16, 16, wxColour(128, 128, 128));
+	m_activeLeftBmp = wxBitmapBundle(bitmapFromBits(left_bits, 16, 16, *wxBLACK));
+	m_disabledLeftBmp = wxBitmapBundle(bitmapFromBits(left_bits, 16, 16, wxColour(128, 128, 128)));
 
-	m_activeRightBmp = bitmapFromBits(right_bits, 16, 16, *wxBLACK);
-	m_disabledRightBmp = bitmapFromBits(right_bits, 16, 16, wxColour(128, 128, 128));
+	m_activeRightBmp = wxBitmapBundle(bitmapFromBits(right_bits, 16, 16, *wxBLACK));
+	m_disabledRightBmp = wxBitmapBundle(bitmapFromBits(right_bits, 16, 16, wxColour(128, 128, 128)));
 
-	m_activeWindowListBmp = bitmapFromBits(list_bits, 16, 16, *wxBLACK);
-	m_disabledWindowListBmp = bitmapFromBits(list_bits, 16, 16, wxColour(128, 128, 128));
+	m_activeWindowListBmp = wxBitmapBundle(bitmapFromBits(list_bits, 16, 16, *wxBLACK));
+	m_disabledWindowListBmp = wxBitmapBundle(bitmapFromBits(list_bits, 16, 16, wxColour(128, 128, 128)));
 
 	m_flags = 0;
 }
@@ -268,6 +268,7 @@ void SAuiTabArt::DrawTab(wxDC& dc,
 	wxCoord normal_textx, normal_texty;
 	wxCoord selected_textx, selected_texty;
 	wxCoord texty;
+    wxBitmap bitmap;
 
 	// if the caption is empty, measure some temporary text
 	wxString caption = page.caption;
@@ -293,6 +294,7 @@ void SAuiTabArt::DrawTab(wxDC& dc,
 		close_button_state,
 		x_extent);
 
+    bitmap = page.bitmap.GetBitmap(wxDefaultSize);
 	// I know :P This stuff should probably be completely rewritten,
 	// but this will do for now
 	auto px2 = UI::scalePx(2);
@@ -411,12 +413,12 @@ void SAuiTabArt::DrawTab(wxDC& dc,
 	}
 
 	// draw icon if set
-	if (page.bitmap.IsOk())
+	if (bitmap.IsOk())
 	{
 		dc.DrawBitmap(
-			page.bitmap,
+			bitmap,
 			tab_x + padding_,
-			drawn_tab_yoff + (drawn_tab_height / 2) - (page.bitmap.GetHeight() / 2),
+			drawn_tab_yoff + (drawn_tab_height / 2) - (bitmap.GetHeight() / 2),
 			true
 		);
 	}
@@ -436,9 +438,9 @@ void SAuiTabArt::DrawTab(wxDC& dc,
 	// draw close button if necessary
 	if (close_button_state != wxAUI_BUTTON_STATE_HIDDEN)
 	{
-		int close_button_width = m_activeCloseBmp.GetWidth();
+		int close_button_width = m_activeCloseBmp.GetBitmap(wxDefaultSize).GetWidth();
 
-		wxBitmap bmp = m_disabledCloseBmp;
+		wxBitmap bmp = m_disabledCloseBmp.GetBitmap(wxDefaultSize);
 
 		int offsetY = tab_y;
 		if (m_flags & wxAUI_NB_BOTTOM)
@@ -462,12 +464,12 @@ void SAuiTabArt::DrawTab(wxDC& dc,
 			dc.SetBrush(wxBrush(Drawing::lightColour(close_white ? bluetab_colour : bgcol, 1.0f)));
 			dc.DrawRectangle(rect.x, rect.y + 1, rect.width - 1, rect.width - px2);
 
-			bmp = close_white ? close_bitmap_white_ : m_activeCloseBmp;
+			bmp = close_white ? close_bitmap_white_ : m_activeCloseBmp.GetBitmap(wxDefaultSize);
 			dc.DrawBitmap(bmp, rect.x, rect.y, true);
 		}
 		else
 		{
-			bmp = close_white ? close_bitmap_white_ : m_disabledCloseBmp;
+			bmp = close_white ? close_bitmap_white_ : m_disabledCloseBmp.GetBitmap(wxDefaultSize);
 			dc.DrawBitmap(bmp, rect.x, rect.y, true);
 		}
 
@@ -482,12 +484,14 @@ void SAuiTabArt::DrawTab(wxDC& dc,
 wxSize SAuiTabArt::GetTabSize(wxDC& dc,
 	wxWindow* WXUNUSED(wnd),
 	const wxString& caption,
-	const wxBitmap& bitmap,
+	const wxBitmapBundle& bitmapBundle,
 	bool WXUNUSED(active),
 	int close_button_state,
 	int* x_extent)
 {
 	wxCoord measured_textx, measured_texty, tmp;
+
+    wxBitmap bitmap = bitmapBundle.GetBitmap(wxDefaultSize);
 
 	dc.SetFont(m_measuringFont);
 	dc.GetTextExtent(caption, &measured_textx, &measured_texty);
@@ -500,7 +504,7 @@ wxSize SAuiTabArt::GetTabSize(wxDC& dc,
 
 	// if close buttons are enabled, add space for one
 	if (close_buttons_)
-		tab_width += m_activeCloseBmp.GetWidth() + padding_;
+		tab_width += m_activeCloseBmp.GetBitmap(wxDefaultSize).GetWidth() + padding_;
 
 	// if there's a bitmap, add space for it
 	if (bitmap.IsOk())
@@ -548,8 +552,8 @@ SAuiDockArt::SAuiDockArt()
 	float b = ((float)textColour.Blue() * 0.2f) + ((float)captionBackColour.Blue() * 0.8f);
 	captionAccentColour = wxColor(r, g, b);
 
-	m_activeCloseBitmap = bitmapFromBits(close_bits, 16, 16, wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT));
-	m_inactiveCloseBitmap = bitmapFromBits(close_bits, 16, 16, wxColour(128, 128, 128));
+	m_activeCloseBitmap = wxBitmapBundle(bitmapFromBits(close_bits, 16, 16, wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT)));
+	m_inactiveCloseBitmap = wxBitmapBundle(bitmapFromBits(close_bits, 16, 16, wxColour(128, 128, 128)));
 	
 	if (Global::win_version_major >= 10)
 		m_sashBrush = wxBrush(col_w10_bg);
@@ -600,7 +604,7 @@ void SAuiDockArt::DrawCaption(wxDC& dc,
 	if (pane.icon.IsOk())
 	{
 		DrawIcon(dc, rect, pane);
-		caption_offset += pane.icon.GetWidth() + px3;
+		caption_offset += pane.icon.GetBitmap(wxDefaultSize).GetWidth() + px3;
 	}
 
 	dc.SetTextForeground(wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOWTEXT));
@@ -641,7 +645,8 @@ void SAuiDockArt::DrawPaneButton(
 	const wxRect& _rect,
 	wxAuiPaneInfo& pane)
 {
-	wxBitmap bmp;
+	wxBitmapBundle bmp;
+	wxBitmap bmp2;
 	switch (button)
 	{
 	default:
@@ -676,10 +681,11 @@ void SAuiDockArt::DrawPaneButton(
 	}
 
 
+    bmp2 = bmp.GetBitmap(wxDefaultSize);
 	wxRect rect = _rect;
 
 	int old_y = rect.y;
-	rect.y = rect.y + (rect.height / 2) - (bmp.GetHeight() / 2) + 1;
+	rect.y = rect.y + (rect.height / 2) - (bmp2.GetHeight() / 2) + 1;
 	rect.height = old_y + rect.height - rect.y - 1;
 
 
@@ -700,6 +706,7 @@ void SAuiDockArt::DrawPaneButton(
 	}
 
 
+    bmp2 = bmp.GetBitmap(wxDefaultSize);
 	// draw the button itself
-	dc.DrawBitmap(bmp, rect.x, rect.y, true);
+	dc.DrawBitmap(bmp2, rect.x, rect.y, true);
 }
