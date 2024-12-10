@@ -1496,5 +1496,5 @@ void MapEditorWindow::onSize(wxSizeEvent& e)
 	// Update maximized cvar
 	mew_maximized = IsMaximized();
 
-	e.Skip();
+	//e.Skip();
 }

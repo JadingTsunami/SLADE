@@ -297,10 +297,14 @@ void SAuiTabArt::DrawTab(wxDC& dc,
     bitmap = page.bitmap.GetBitmapFor(page.window);
 	// I know :P This stuff should probably be completely rewritten,
 	// but this will do for now
-	auto px2 = UI::scalePx(2);
-	auto px3 = UI::scalePx(3);
-	auto px4 = UI::scalePx(4);
-	auto px5 = UI::scalePx(5);
+	//auto px2 = UI::scalePx(2);
+	//auto px3 = UI::scalePx(3);
+	//auto px4 = UI::scalePx(4);
+	//auto px5 = UI::scalePx(5);
+	auto px2 = wnd->FromDIP(2);
+	auto px3 = wnd->FromDIP(3);
+	auto px4 = wnd->FromDIP(4);
+	auto px5 = wnd->FromDIP(5);
 
 	wxCoord tab_height = m_tabCtrlHeight + px2;
 	wxCoord tab_width = tab_size.x;
