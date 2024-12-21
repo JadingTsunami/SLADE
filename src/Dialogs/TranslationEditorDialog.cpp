@@ -73,12 +73,12 @@ GradientBox::~GradientBox()
 void GradientBox::draw()
 {
 	// Setup the viewport
-	glViewport(0, 0, GetSize().x, GetSize().y);
+	glViewport(0, 0, GetContentScaleFactor() * GetSize().x, GetContentScaleFactor() * GetSize().y);
 
 	// Setup the screen projection
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glOrtho(0, GetSize().x, GetSize().y, 0, -1, 1);
+	glOrtho(0, GetContentScaleFactor() * GetSize().x, GetContentScaleFactor() * GetSize().y, 0, -1, 1);
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -98,10 +98,10 @@ void GradientBox::draw()
 		glBegin(GL_QUADS);
 		OpenGL::setColour(col_start);
 		glVertex2d(0, 0);
-		glVertex2d(0, GetSize().y);
+		glVertex2d(0, GetContentScaleFactor() * GetSize().y);
 		OpenGL::setColour(col_end);
-		glVertex2d(GetSize().x, GetSize().y);
-		glVertex2d(GetSize().x, 0);
+		glVertex2d(GetContentScaleFactor() * GetSize().x, GetContentScaleFactor() * GetSize().y);
+		glVertex2d(GetContentScaleFactor() * GetSize().x, 0);
 		glEnd();
 	}
 

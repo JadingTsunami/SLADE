@@ -242,7 +242,7 @@ void MapCanvas::onKeyBindPress(string name)
 void MapCanvas::onSize(wxSizeEvent& e)
 {
 	// Update screen limits
-	context_->renderer().setViewSize(2*GetSize().x, 2*GetSize().y);
+	context_->renderer().setViewSize(GetContentScaleFactor()*GetSize().x, GetContentScaleFactor()*GetSize().y);
 
 	//e.Skip();
 }
@@ -425,7 +425,7 @@ void MapCanvas::onMouseMotion(wxMouseEvent& e)
 	}
 
 	// Update mouse variables
-	if (!context_->input().mouseMove(e.GetX()*2, 2*e.GetY()))
+	if (!context_->input().mouseMove(e.GetX() * GetContentScaleFactor(), e.GetY() * GetContentScaleFactor()))
 		return;
 
 	e.Skip();

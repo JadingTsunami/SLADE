@@ -104,12 +104,12 @@ void SpriteTexCanvas::setSprite(const Game::ThingType& type)
 void SpriteTexCanvas::draw()
 {
 	// Setup the viewport
-	glViewport(0, 0, GetSize().x, GetSize().y);
+	glViewport(0, 0, GetContentScaleFactor() * GetSize().x, GetContentScaleFactor() * GetSize().y);
 
 	// Setup the screen projection
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glOrtho(0, GetSize().x, GetSize().y, 0, -1, 1);
+	glOrtho(0, GetContentScaleFactor() * GetSize().x, GetContentScaleFactor() * GetSize().y, 0, -1, 1);
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -131,13 +131,13 @@ void SpriteTexCanvas::draw()
 	{
 		// Sprite
 		glEnable(GL_TEXTURE_2D);
-		Drawing::drawTextureWithin(texture_, 0, 0, GetSize().x, GetSize().y, 4, 2);
+		Drawing::drawTextureWithin(texture_, 0, 0, GetContentScaleFactor() * GetSize().x, GetContentScaleFactor() * GetSize().y, 4, 2);
 	}
 	else if (texture_ && icon_)
 	{
 		// Icon
 		glEnable(GL_TEXTURE_2D);
-		Drawing::drawTextureWithin(texture_, 0, 0, GetSize().x, GetSize().y, 0, 0.25);
+		Drawing::drawTextureWithin(texture_, 0, 0, GetContentScaleFactor() * GetSize().x, GetContentScaleFactor() * GetSize().y, 0, 0.25);
 	}
 
 	// Swap buffers (ie show what was drawn)
@@ -237,7 +237,7 @@ void ThingDirCanvas::setAngle(int angle)
 void ThingDirCanvas::draw()
 {
 	// Setup the viewport
-	glViewport(0, 0, GetSize().x, GetSize().y);
+	glViewport(0, 0, GetContentScaleFactor() * GetSize().x, GetContentScaleFactor() * GetSize().y);
 
 	// Setup the screen projection
 	glMatrixMode(GL_PROJECTION);

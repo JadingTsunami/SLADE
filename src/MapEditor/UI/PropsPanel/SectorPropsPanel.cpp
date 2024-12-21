@@ -92,12 +92,12 @@ void FlatTexCanvas::setTexture(string tex)
 void FlatTexCanvas::draw()
 {
 	// Setup the viewport
-	glViewport(0, 0, GetSize().x, GetSize().y);
+	glViewport(0, 0, GetContentScaleFactor() * GetSize().x, GetContentScaleFactor() * GetSize().y);
 
 	// Setup the screen projection
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glOrtho(0, GetSize().x, GetSize().y, 0, -1, 1);
+	glOrtho(0, GetContentScaleFactor() * GetSize().x, GetContentScaleFactor() * GetSize().y, 0, -1, 1);
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -117,7 +117,7 @@ void FlatTexCanvas::draw()
 	if (texture_ && texture_ != &(GLTexture::missingTex()))
 	{
 		glEnable(GL_TEXTURE_2D);
-		Drawing::drawTextureWithin(texture_, 0, 0, GetSize().x, GetSize().y, 0, 100.0);
+		Drawing::drawTextureWithin(texture_, 0, 0, GetContentScaleFactor() * GetSize().x, GetContentScaleFactor() * GetSize().y, 0, 100.0);
 	}
 	else if (texture_ == &(GLTexture::missingTex()))
 	{
@@ -125,7 +125,7 @@ void FlatTexCanvas::draw()
 		GLTexture* tex = MapEditor::textureManager().getEditorImage("thing/unknown");
 		glEnable(GL_TEXTURE_2D);
 		OpenGL::setColour(180, 0, 0);
-		Drawing::drawTextureWithin(tex, 0, 0, GetSize().x, GetSize().y, 0, 0.25);
+		Drawing::drawTextureWithin(tex, 0, 0, GetContentScaleFactor() * GetSize().x, GetContentScaleFactor() * GetSize().y, 0, 0.25);
 	}
 
 	// Swap buffers (ie show what was drawn)

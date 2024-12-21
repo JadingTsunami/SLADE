@@ -162,7 +162,7 @@ void OGLCanvas::init()
 {
 	OpenGL::init();
 
-	glViewport(0, 0, GetSize().x, GetSize().y);
+	glViewport(0, 0, GetContentScaleFactor() * GetSize().x, GetContentScaleFactor() * GetSize().y);
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glClearDepth(1.0);
 	glShadeModel(GL_SMOOTH);
@@ -179,7 +179,7 @@ void OGLCanvas::init()
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 
-	glOrtho(0, GetSize().x, GetSize().y, 0, -1, 100);
+	glOrtho(0, GetContentScaleFactor() * GetSize().x, GetContentScaleFactor() * GetSize().y, 0, -1, 100);
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -203,7 +203,7 @@ void OGLCanvas::drawCheckeredBackground()
 	GLTexture::bgTex().bind();
 
 	// Draw background
-	frect_t rect(0, 0, GetSize().x, GetSize().y);
+	frect_t rect(0, 0, GetContentScaleFactor() * GetSize().x, GetContentScaleFactor() * GetSize().y);
 	OpenGL::setColour(COL_WHITE);
 	glBegin(GL_QUADS);
 	glTexCoord2d(rect.x1()*0.0625, rect.y1()*0.0625);	glVertex2d(rect.x1(), rect.y1());
@@ -261,7 +261,7 @@ bool OGLCanvas::setActive()
 
 	Drawing::setRenderTarget(this);
 	resetGLStates();
-	setView(sf::View(sf::FloatRect(0.0f, 0.0f, GetSize().x, GetSize().y)));
+	setView(sf::View(sf::FloatRect(0.0f, 0.0f, GetContentScaleFactor() * GetSize().x, GetContentScaleFactor() * GetSize().y)));
 
 	return true;
 #else
@@ -275,12 +275,12 @@ bool OGLCanvas::setActive()
 void OGLCanvas::setup2D()
 {
 	// Setup the viewport
-	glViewport(0, 0, GetSize().x, GetSize().y);
+	glViewport(0, 0, GetContentScaleFactor() * GetSize().x, GetContentScaleFactor() * GetSize().y);
 
 	// Setup the screen projection
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	glOrtho(0, GetSize().x, GetSize().y, 0, -1, 1);
+	glOrtho(0, GetContentScaleFactor() * GetSize().x, GetContentScaleFactor() * GetSize().y, 0, -1, 1);
 
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();

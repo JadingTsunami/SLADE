@@ -69,8 +69,8 @@ void CropCanvas::draw()
 	drawCheckeredBackground();
 
 	// Determine graphic position & scale
-	double width = GetSize().x;
-	double height = GetSize().y;
+	double width = GetContentScaleFactor() * GetSize().x;
+	double height = GetContentScaleFactor() * GetSize().y;
 
 	// Get image dimensions
 	double x_dim = (double)texture->getWidth();
@@ -245,7 +245,7 @@ GfxCropDialog::GfxCropDialog(wxWindow* parent, SImage* image, Palette* palette) 
 
 	// Setup dialog size
 	SetInitialSize(wxSize(-1, -1));
-	SetMinSize(GetSize());
+	SetMinSize(GetContentScaleFactor() * GetSize());
 	CenterOnParent();
 }
 
